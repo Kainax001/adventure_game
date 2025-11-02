@@ -1,0 +1,10 @@
+# Java / Maven
+target/
+*.class
+
+# VS Code
+.vscode/
+
+# Log files
+*.log
+*.tmp
