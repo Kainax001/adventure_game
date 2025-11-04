@@ -19,6 +19,13 @@ public class Enemy extends Entity{
         }
     }
 
+    public void update(Dungeon dungeon, Player player) {
+        // 간단한 추적 AI: 플레이어 방향으로 한 칸 이동
+        int dx = Integer.compare(player.getX(), this.x);
+        int dy = Integer.compare(player.getY(), this.y);
+        move(dx, dy, dungeon);
+    }
+
     @Override
     public void draw(Graphics g, int tileSize) {
         g.setColor(Color.RED); 
