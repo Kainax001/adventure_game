@@ -1,6 +1,7 @@
 package com.game_adventure.core;
 
 import com.game_adventure.map.Dungeon;
+import com.game_adventure.entity.Enemy;
 import com.game_adventure.entity.Player;
 import com.game_adventure.generator.DungeonGenerator;
 
@@ -94,12 +95,30 @@ public class Game implements KeyListener, Runnable {
         gameThread.start();
     }
 
+    private void updateLogic() {
+    // 1. 적 엔티티 업데이트
+    if (dungeon.getEnemies() != null) {
+        for (Enemy enemy : dungeon.getEnemies()) {
+            // 적의 위치를 업데이트합니다.
+            enemy.update(dungeon, player); 
+        }
+    }
+    // 2. 다른 엔티티 업데이트 (필요 시)
+}
+    
     @Override
     public void run() {
         double targetFrameTime = 1000.0 / FPS; 
 
         while (gameThread != null) {
             long startTime = System.currentTimeMillis();
+
+            // 게임 로직 업데이트
+            // **[핵심 추가]** 게임 로직 업데이트 호출
+            // 레벨 전환/종료 대기 중이 아닐 때만 로직을 실행합니다.
+            if (!isAwaitingQuitConfirmation && !isAwaitingLevelTransition) {
+                 updateLogic(); 
+            }
 
             gamePanel.repaint();
 

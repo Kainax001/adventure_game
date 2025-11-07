@@ -103,11 +103,11 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // 모든 적을 그리는 헬퍼 메서드
-    private void drawEnemies(Graphics g) {
+    private void drawEnemies(Graphics g) { // 메서드 이름을 복수로 변경하는 것이 좋습니다.
         // Dungeon 클래스의 getEnemies()가 List<Enemy>를 반환한다고 가정
-        if (dungeon.getEnemies() != null) {
-            for (Enemy enemy : dungeon.getEnemies()) {
+        // [수정] getEnemy() 대신 getEnemies() 호출
+        if (dungeon.getEnemies() != null) { 
+            for (Enemy enemy : dungeon.getEnemies()) { // 리스트를 순회
                 if (enemy != null) {
                     enemy.draw(g, TILE_SIZE);
                 }

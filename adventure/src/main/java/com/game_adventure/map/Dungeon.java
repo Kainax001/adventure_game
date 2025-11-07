@@ -1,5 +1,6 @@
 package com.game_adventure.map;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.game_adventure.entity.Enemy;
@@ -20,6 +21,7 @@ public class Dungeon {
         this.player = player;
         this.startX = startX;
         this.startY = startY;
+        this.enemies = new ArrayList<>();
     }
 
     public Player getPlayer() { return player; } // 플레이어 Getter
