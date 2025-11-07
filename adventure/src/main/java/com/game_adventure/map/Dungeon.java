@@ -1,11 +1,15 @@
 package com.game_adventure.map;
 
+import java.util.List;
+
+import com.game_adventure.entity.Enemy;
 import com.game_adventure.entity.Player;
 
 public class Dungeon {
 
     private Tile[][] tiles;
     private Player player; 
+    private List<Enemy> enemies; // 적 리스트
 
     // 시작 위치를 저장할 필드
     private int startX;
@@ -18,7 +22,10 @@ public class Dungeon {
         this.startY = startY;
     }
 
-    public Player getPlayer() { return player; }
+    public Player getPlayer() { return player; } // 플레이어 Getter
+    public List<Enemy> getEnemies() { return enemies; } // 적 리스트 Getter
+    public void addEnemy(Enemy enemy) { this.enemies.add(enemy); } // 적 추가 메서드
+
     // 시작 위치 Getter
     public int getStartX() { return startX; }
     public int getStartY() { return startY; }

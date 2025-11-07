@@ -37,7 +37,7 @@ public class Game implements KeyListener, Runnable {
         this.gamePanel = new GamePanel(dungeon); 
 
         // 3. 윈도우(JFrame) 설정
-        this.frame = new JFrame("The Adventure"); 
+        this.frame = new JFrame("The Adventure");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         frame.setResizable(false); 
         frame.add(gamePanel); 
@@ -56,30 +56,29 @@ public class Game implements KeyListener, Runnable {
     private void generateNewLevel() {
         System.out.println("새로운 던전 생성 중...");
         
-        // **[핵심 수정]** 새 맵을 그리기 전에 승리 메시지를 확실히 숨깁니다.
+        // 새 맵을 그리기 전에 level 전환 메시지 숨기기
         gamePanel.setShowWinMessage(false); 
         
         // 1. 새로운 던전 생성
         Dungeon newDungeon = generator.generate(MAP_WIDTH, MAP_HEIGHT); 
         
-        // 2. 새 던전에서 생성된 Player의 위치 정보를 가져옵니다.
+        // 2. 새 던전에서 생성된 Player의 위치 정보를 가져옴
         Player newLevelPlayer = newDungeon.getPlayer();
         int newStartX = newLevelPlayer.getX();
         int newStartY = newLevelPlayer.getY();
         
-        // **[핵심 수정]** 기존 Player 객체의 위치만 업데이트합니다.
+        // 기존 Player 객체의 위치만 업데이트
         this.player.setPosition(newStartX, newStartY);
         
-        // 3. 필드 업데이트: Player 객체는 그대로 두고 Dungeon 객체만 새 것으로 바꿉니다.
+        // 3. 필드 업데이트: Player 객체는 그대로 두고 Dungeon 객체만 새 것으로
         this.dungeon = newDungeon; 
         
         // 4. GamePanel 업데이트 및 프레임 크기 재조정
         //    GamePanel은 setDungeon을 통해 새 던전을 받지만,
         //    던전 내부의 Player 객체는 Game.java의 Player와는 다릅니다.
-        //    (이후 Player 객체 사용 시 충돌을 막기 위해 5번 단계를 추가합니다.)
 
-        // **[추가]** Dungeon 객체 내부의 Player 객체도 Game.java의 객체와 동일하게 맞춥니다.
-        // Dungeon 클래스에 Player 객체를 교체하는 Setter가 필요합니다.
+        // Dungeon 객체 내부의 Player 객체도 Game.java의 객체와 동일하게 설정
+        // Dungeon 클래스에 Player 객체를 교체하는 Setter가 필요
         this.dungeon.setPlayer(this.player);
         
         // GamePanel 업데이트 및 프레임 크기 재조정

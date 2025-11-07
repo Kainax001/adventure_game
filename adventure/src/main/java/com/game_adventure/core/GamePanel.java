@@ -2,6 +2,7 @@ package com.game_adventure.core;
 
 import com.game_adventure.map.Dungeon;
 import com.game_adventure.map.Tile;
+import com.game_adventure.entity.Enemy;
 import com.game_adventure.entity.Player;
 import com.game_adventure.map.ExitTile;
 
@@ -70,7 +71,10 @@ public class GamePanel extends JPanel {
         // 2. 플레이어 그리기
         drawPlayer(g);
 
-        // 3. 오버레이 메시지 그리기 (항상 마지막에 그려져야 함)
+        // 3. 모든 적 그리기
+        drawEnemies(g);
+
+        // 4. 오버레이 메시지 그리기 (항상 마지막에 그려져야 함)
         drawOverlayMessages(g);
     }
     
@@ -96,6 +100,18 @@ public class GamePanel extends JPanel {
         Player player = dungeon.getPlayer();
         if (player != null) {
             player.draw(g, TILE_SIZE);
+        }
+    }
+
+    // 모든 적을 그리는 헬퍼 메서드
+    private void drawEnemies(Graphics g) {
+        // Dungeon 클래스의 getEnemies()가 List<Enemy>를 반환한다고 가정
+        if (dungeon.getEnemies() != null) {
+            for (Enemy enemy : dungeon.getEnemies()) {
+                if (enemy != null) {
+                    enemy.draw(g, TILE_SIZE);
+                }
+            }
         }
     }
 

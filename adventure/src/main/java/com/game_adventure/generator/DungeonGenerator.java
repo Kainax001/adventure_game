@@ -4,6 +4,7 @@ import com.game_adventure.map.Dungeon;
 import com.game_adventure.map.Tile;
 import com.game_adventure.map.WallTile;
 import com.game_adventure.map.FloorTile;
+import com.game_adventure.entity.Enemy;
 import com.game_adventure.entity.Player;
 
 import java.util.ArrayList;
@@ -52,10 +53,45 @@ public class DungeonGenerator {
             }
         }
 
+        // 4-1. 적 배치 (임의로 각 방의 중앙에 배치)
+        if(!roomList.isEmpty()) {
+            for (Rect room : roomList) {
+                int enemyX = room.x + room.w / 2;
+                int enemyY = room.y + room.h / 2;
+
+                if ((enemyX != startX || enemyY != startY) && tiles[enemyY][enemyX] instanceof FloorTile) {
+                }
+            }
+        }
+
         // 5. Dungeon 객체 반환
         // 임시 Player 객체를 생성하여 Dungeon에 전달하고, 시작 좌표를 함께 저장합니다.
         Player tempPlayer = new Player(startX, startY);
-        return new Dungeon(tiles, tempPlayer, startX, startY); // [수정] startX, startY 전달
+        Dungeon dungeon = new Dungeon(tiles, tempPlayer, startX, startY); // Dungeon 객체 생성
+
+        // **[핵심 추가] 6. 적 생성 및 배치 (50% 확률)**
+        Random rand = new Random();
+        if (!roomList.isEmpty()) {
+            for (Rect room : roomList) {
+                // 첫 방은 플레이어 시작 지점이므로 적을 배치하지 않습니다.
+                if (room == firstRoom) continue; 
+                
+                // 50% 확률로 적 생성
+                if (rand.nextBoolean()) { // true 또는 false (50% 확률)
+                    int enemyX = room.x + room.w / 2;
+                    int enemyY = room.y + room.h / 2;
+
+                    // 해당 위치가 바닥 타일이고 (중복 체크)
+                    // (출구 타일이 FloorTile을 덮어쓰므로 출구에도 배치될 수 있습니다. 필요하다면 ExiTile 체크 추가)
+                    if (tiles[enemyY][enemyX] instanceof FloorTile) {
+                        Enemy enemy = new Enemy(enemyX, enemyY);
+                        dungeon.addEnemy(enemy); // 생성된 적을 던전에 추가
+                    }
+                }
+            }
+        }
+
+        return dungeon; // 생성된 던전 객체 반환
     }
 
     /**
