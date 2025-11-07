@@ -7,12 +7,25 @@ public class Dungeon {
     private Tile[][] tiles;
     private Player player; 
 
-    public Dungeon(Tile[][] tiles, Player player) {
+    // 시작 위치를 저장할 필드
+    private int startX;
+    private int startY;
+
+    public Dungeon(Tile[][] tiles, Player player, int startX, int startY) {
         this.tiles = tiles;
         this.player = player;
+        this.startX = startX;
+        this.startY = startY;
     }
 
     public Player getPlayer() { return player; }
+    // 시작 위치 Getter
+    public int getStartX() { return startX; }
+    public int getStartY() { return startY; }
+    // Game.java에서 기존 Player 객체를 Dungeon에 연결하기 위한 Setter
+    public void setPlayer(Player player) { this.player = player; }
+        
+    // 출구 타일을 반환하는 메서드
     public ExitTile getExitTile() {
         for (int y = 0; y < tiles.length; y++) {
             for (int x = 0; x < tiles[0].length; x++) {

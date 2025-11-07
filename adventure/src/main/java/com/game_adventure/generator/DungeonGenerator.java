@@ -17,6 +17,7 @@ public class DungeonGenerator {
 
     public Dungeon generate(int width, int height) {
         this.tiles = new Tile[height][width];
+        roomList.clear(); // 맵 재생성 시 목록 초기화
 
         // 1. 맵을 모두 벽으로 초기화
         for (int y = 0; y < height; y++) {
@@ -26,20 +27,13 @@ public class DungeonGenerator {
         }
 
         // 2. BSP 로직 실행
-        BSPNode root = new BSPNode(new Rect(1, 1, width - 2, height - 2)); // (벽 여백 1칸)
-
-        // 2-1. 맵 분할
+        BSPNode root = new BSPNode(new Rect(1, 1, width - 2, height - 2)); 
         root.split(); 
-
-        // 2-2. 리프 노드에 방 생성
         root.createRoom(this); 
-
-        // 2-3. 방 생성 후 복도 연결 (이 코드가 있어야 방이 연결됩니다)
         root.createCorridors(this);
 
-        // 3. 첫 번째 방에 플레이어 배치
+        // 3. 첫 번째 방 좌표 계산 (Player 생성하지 않음)
         if (roomList.isEmpty()) {
-            // BSP가 방을 못 만들었을 경우를 대비해 임시 방이라도 만듦
             createRoom(new Rect(width/2 - 2, height/2 - 2, 5, 5));
         }
 
@@ -47,25 +41,21 @@ public class DungeonGenerator {
         int startX = firstRoom.x + firstRoom.w / 2;
         int startY = firstRoom.y + firstRoom.h / 2;
 
-        Player player = new Player(startX, startY);
-
+        // 4. 출구 타일 배치 (기존 로직 유지)
         if (!roomList.isEmpty()) {
-            Rect lastRoom = roomList.get(roomList.size() - 1); // 리스트의 마지막 방 선택
-        
-            // 방의 중앙 좌표 계산
+            Rect lastRoom = roomList.get(roomList.size() - 1);
             int exitX = lastRoom.x + lastRoom.w / 2;
             int exitY = lastRoom.y + lastRoom.h / 2;
-        
-            // 해당 위치에 ExitTile 배치 (FloorTile로 먼저 바꿀 필요 없이 바로 덮어씁니다.)
-            // ExitTile은 Tile을 상속하며, Wall/Floor 여부와 관계없이 출구의 역할을 합니다.
+            
             if (exitY > 0 && exitY < tiles.length - 1 && exitX > 0 && exitX < tiles[0].length - 1) {
-                 // Wall/Floor 타일 대신 ExitTile을 할당합니다.
                 tiles[exitY][exitX] = new com.game_adventure.map.ExitTile(exitX, exitY);
             }
         }
 
-        // 4. Dungeon 객체 반환
-        return new Dungeon(tiles, player);
+        // 5. Dungeon 객체 반환
+        // 임시 Player 객체를 생성하여 Dungeon에 전달하고, 시작 좌표를 함께 저장합니다.
+        Player tempPlayer = new Player(startX, startY);
+        return new Dungeon(tiles, tempPlayer, startX, startY); // [수정] startX, startY 전달
     }
 
     /**
