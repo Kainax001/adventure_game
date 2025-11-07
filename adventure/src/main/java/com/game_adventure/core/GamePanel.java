@@ -3,6 +3,7 @@ package com.game_adventure.core;
 import com.game_adventure.map.Dungeon;
 import com.game_adventure.map.Tile;
 import com.game_adventure.entity.Player;
+import com.game_adventure.map.ExitTile;
 
 import javax.swing.JPanel; // Swing의 '도화지'
 import java.awt.Graphics; // 그리기 도구
@@ -61,6 +62,24 @@ public class GamePanel extends JPanel {
         if (player != null) {
             // 플레이어에게 "너 자신을 그려!" 라고 명령
             player.draw(g, TILE_SIZE);
+        }
+
+        ExitTile exitTile = dungeon.getExitTile();
+        if (exitTile != null) {
+            // 출구 타일에게 "너 자신을 그려!" 라고 명령
+            exitTile.draw(g, exitTile.getX() * TILE_SIZE, exitTile.getY() * TILE_SIZE, TILE_SIZE);
+        }
+
+        if (player != null && exitTile != null) {
+            // 3. 플레이어와 출구 타일이 같은 위치에 있으면
+            if (player.getX() == exitTile.getX() && player.getY() == exitTile.getY()) {
+                // 승리 메시지 그리기
+                g.setColor(new Color(255, 255, 255, 200)); // 반투명 흰색
+                g.setFont(new Font("Arial", Font.BOLD, 30));
+                String msg = "You Escaped the Dungeon!";
+                int strWidth = g.getFontMetrics().stringWidth(msg);
+                g.drawString(msg, (getWidth() - strWidth) / 2, getHeight() / 2);
+            }
         }
 
         // [추가 4] "종료 확인 대기 중"일 때 화면 위에 텍스트 그리기

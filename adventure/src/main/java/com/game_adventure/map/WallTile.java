@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class WallTile extends Tile {
-    public WallTile() {
-        super(false); // (consoleChar 삭제)
+    public WallTile(int x, int y) {
+        super(false, x, y);
     }
 
     @Override

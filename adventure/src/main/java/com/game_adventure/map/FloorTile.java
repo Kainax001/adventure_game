@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class FloorTile extends Tile {
-    public FloorTile() {
-        super(true); // (consoleChar 삭제)
+    public FloorTile(int x, int y) {
+        super(true, x, y); // (consoleChar 삭제)
     }
 
     @Override

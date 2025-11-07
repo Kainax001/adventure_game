@@ -21,7 +21,7 @@ public class DungeonGenerator {
         // 1. 맵을 모두 벽으로 초기화
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                tiles[y][x] = new WallTile();
+                tiles[y][x] = new WallTile(x, y);
             }
         }
 
@@ -49,6 +49,21 @@ public class DungeonGenerator {
 
         Player player = new Player(startX, startY);
 
+        if (!roomList.isEmpty()) {
+        Rect lastRoom = roomList.get(roomList.size() - 1); // 리스트의 마지막 방 선택
+        
+        // 방의 중앙 좌표 계산
+        int exitX = lastRoom.x + lastRoom.w / 2;
+        int exitY = lastRoom.y + lastRoom.h / 2;
+        
+        // 해당 위치에 ExitTile 배치 (FloorTile로 먼저 바꿀 필요 없이 바로 덮어씁니다.)
+        // ExitTile은 Tile을 상속하며, Wall/Floor 여부와 관계없이 출구의 역할을 합니다.
+        if (exitY > 0 && exitY < tiles.length - 1 && exitX > 0 && exitX < tiles[0].length - 1) {
+             // Wall/Floor 타일 대신 ExitTile을 할당합니다.
+             tiles[exitY][exitX] = new com.game_adventure.map.ExitTile(exitX, exitY);
+        }
+    }
+
         // 4. Dungeon 객체 반환
         return new Dungeon(tiles, player);
     }
@@ -62,7 +77,7 @@ public class DungeonGenerator {
             for (int x = room.x; x < room.x + room.w; x++) {
                 // 맵 경계 체크
                 if (y > 0 && y < tiles.length - 1 && x > 0 && x < tiles[0].length - 1) {
-                    tiles[y][x] = new FloorTile();
+                    tiles[y][x] = new FloorTile(x, y);
                 }
             }
         }
@@ -96,7 +111,7 @@ public class DungeonGenerator {
     private void createHCorridor(int x1, int x2, int y) {
         for (int x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
             if (y > 0 && y < tiles.length - 1 && x > 0 && x < tiles[0].length - 1) {
-                tiles[y][x] = new FloorTile();
+                tiles[y][x] = new FloorTile(x, y);
             }
         }
     }
@@ -105,7 +120,7 @@ public class DungeonGenerator {
     private void createVCorridor(int x, int y1, int y2) {
         for (int y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
             if (y > 0 && y < tiles.length - 1 && x > 0 && x < tiles[0].length - 1) {
-                tiles[y][x] = new FloorTile();
+                tiles[y][x] = new FloorTile(x, y);
             }
         }
     }

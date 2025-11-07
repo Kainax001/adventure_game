@@ -13,6 +13,18 @@ public class Dungeon {
     }
 
     public Player getPlayer() { return player; }
+    public ExitTile getExitTile() {
+        for (int y = 0; y < tiles.length; y++) {
+            for (int x = 0; x < tiles[0].length; x++) {
+                if (tiles[y][x] instanceof ExitTile) {
+                    return (ExitTile) tiles[y][x];
+                }
+            }
+        }
+        return null; // 출구 타일이 없을 경우
+    }
+
+    
 
     public boolean isWalkable(int x, int y) {
         if (y < 0 || y >= tiles.length || x < 0 || x >= tiles[0].length) {
