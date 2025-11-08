@@ -92,18 +92,38 @@ public class Enemy extends Entity{
             }
         }
 
+        int priorityDx = dx;
+        int priorityDy = dy;
+        int secondaryDx = 0;
+        int secondaryDy = 0;
+        
+        // 2. 직선 우선 결정
         if (dx != 0 && dy != 0) {
-            // X축 거리가 Y축 거리보다 멀면 X축 이동을 우선
-            if (Math.abs(targetXDiff) > Math.abs(targetYDiff) && (dungeon.isWalkable(this.x + dx, this.y))) {
-                dy = 0; // Y축 이동을 포기
-            } 
-            // Y축 거리가 X축 거리보다 멀거나 같으면 Y축 이동을 우선
-            else { 
-                dx = 0; // X축 이동을 포기
+            boolean preferX = Math.abs(targetXDiff) > Math.abs(targetYDiff);
+            
+            if (preferX) {
+                // X축 우선: 주(X), 부(Y) 설정
+                priorityDy = 0; 
+                secondaryDx = 0;
+                secondaryDy = dy; // Y축으로 대체 가능성 저장
+            } else {
+                // Y축 우선: 주(Y), 부(X) 설정
+                priorityDx = 0;
+                secondaryDx = dx; // X축으로 대체 가능성 저장
+                secondaryDy = 0;
             }
         }
         
-        move(dx, dy, dungeon);
+        // 3. 이동 시도 (move() 함수가 isWalkable을 체크합니다.)
+        if (dungeon.isWalkable(this.x + priorityDx, this.y + priorityDy)) {
+            // 1순위 이동 가능하면 이동
+            move(priorityDx, priorityDy, dungeon);
+        } 
+        else if ((secondaryDx != 0 || secondaryDy != 0) && 
+                dungeon.isWalkable(this.x + secondaryDx, this.y + secondaryDy)) {
+            // 2순위 이동 가능하면 이동
+            move(secondaryDx, secondaryDy, dungeon);
+        }
     }
 
     @Override
