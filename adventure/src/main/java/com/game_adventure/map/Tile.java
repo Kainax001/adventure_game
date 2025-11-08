@@ -31,7 +31,7 @@ public abstract class Tile {
     public int getX() { return x; } 
     public int getY() { return y; }
     
-    // "너 자신을 그려" 메서드 (다형성의 핵심)
+    // "너 자신을 그려" 메서드
     // (x, y) 픽셀 좌표에 TILE_SIZE 크기로 그림
     public abstract void draw(Graphics g, int x, int y, int tileSize);
 }

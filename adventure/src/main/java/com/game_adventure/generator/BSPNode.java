@@ -4,7 +4,6 @@ import java.util.Random;
 
 // BSP 트리의 노드
 public class BSPNode {
-
     public Rect rect; // 이 노드가 담당하는 구역
     public BSPNode leftChild;
     public BSPNode rightChild;

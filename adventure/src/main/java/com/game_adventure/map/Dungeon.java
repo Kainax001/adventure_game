@@ -46,8 +46,6 @@ public class Dungeon {
         return null; // 출구 타일이 없을 경우
     }
 
-    
-
     public boolean isWalkable(int x, int y) {
         if (y < 0 || y >= tiles.length || x < 0 || x >= tiles[0].length) {
             return false;
@@ -55,17 +53,17 @@ public class Dungeon {
         return tiles[y][x].isWalkable();
     }
 
-    // [추가] 맵의 너비를 반환
+    // 맵의 너비를 반환
     public int getWidth() {
         return tiles[0].length;
     }
 
-    // [추가] 맵의 높이를 반환
+    // 맵의 높이를 반환
     public int getHeight() {
         return tiles.length;
     }
 
-    // [추가] (x, y) 위치의 타일 객체를 반환
+    // (x, y) 위치의 타일 객체를 반환
     public Tile getTile(int x, int y) {
         if (y < 0 || y >= tiles.length || x < 0 || x >= tiles[0].length) {
             return null; // 맵 밖은 null
