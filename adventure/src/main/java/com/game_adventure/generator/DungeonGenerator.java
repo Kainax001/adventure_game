@@ -67,6 +67,7 @@ public class DungeonGenerator {
         // 5. Dungeon 객체 반환
         // 임시 Player 객체를 생성하여 Dungeon에 전달하고, 시작 좌표를 함께 저장합니다.
         Player tempPlayer = new Player(startX, startY);
+        tiles[startY][startX].setIsPlayerhere(true);// 플레이어 시작 위치는 바닥 타일로 설정
         Dungeon dungeon = new Dungeon(tiles, tempPlayer, startX, startY); // Dungeon 객체 생성
 
         // **[핵심 추가] 6. 적 생성 및 배치 (50% 확률)**

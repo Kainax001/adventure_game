@@ -31,6 +31,7 @@ public class Dungeon {
     // 시작 위치 Getter
     public int getStartX() { return startX; }
     public int getStartY() { return startY; }
+    
     // Game.java에서 기존 Player 객체를 Dungeon에 연결하기 위한 Setter
     public void setPlayer(Player player) { this.player = player; }
         
