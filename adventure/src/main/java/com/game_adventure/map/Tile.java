@@ -22,6 +22,9 @@ public abstract class Tile {
     public void setIsEnemyhere(boolean value) {
         this.isEnemyhere = value;
     }
+    public void setIsPlayerhere(boolean isPlayerhere) { 
+        this.isPlayerhere = isPlayerhere; 
+    }
 
     public boolean isWalkable() { return isWalkable; }
     public boolean isEnemyhere() { return isEnemyhere; }

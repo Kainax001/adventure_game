@@ -2,6 +2,7 @@ package com.game_adventure.entity;
 
 import com.game_adventure.map.Dungeon;
 import com.game_adventure.map.Tile;
+import com.game_adventure.combat.Battle;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -10,10 +11,15 @@ import java.awt.Point;
 public class Enemy extends Entity{
     protected int detectionRangeSquared;
     protected int addtionalRangeSquared;
+
     private final int MOVE_SPEED_FACTOR = 20; // 적이 몇 프레임마다 한 번 움직일지 설정
+
     private int frameCounter = 0; // 현재 프레임 카운터를 저장
     private boolean playerDetected = false;
     private int curruntdetectionRangeSquared;
+
+    private int dx = 0;
+    private int dy = 0;
 
     public Enemy (int x, int y){
         super(x, y);
@@ -25,18 +31,38 @@ public class Enemy extends Entity{
     private final int initialX = this.x;
     private final int initialY = this.y;
 
-    public void move(int dx, int dy, Dungeon dungeon) {
-        int newX = this.x + dx;
-        int newY = this.y + dy;
+    public void move(Dungeon dungeon) {
+        int newX = this.x + this.dx;
+        int newY = this.y + this.dy;
 
-        if (dungeon.isWalkable(newX, newY)) {
-            this.x = newX;
-            this.y = newY;
+        Tile newTile = dungeon.getTile(newX, newY); 
+        Entity player = dungeon.getPlayer();
+
+        // 1. 플레이어 충돌 확인 및 밀어내기 시도
+        if (newTile.isPlayerhere()) {
+            int oldPlayerX = player.getX();
+            int oldPlayerY = player.getY();
+
+            Battle.pushEntity(player, this.dx, this.dy, dungeon, 2); // Battle 클래스로 밀어내기 로직 위임 (2회 시도 가정)
+
+            // 플레이어가 이동에 성공했는지 확인
+            if (player.getX() != oldPlayerX || player.getY() != oldPlayerY) {
+                super.move(this.dx, this.dy, dungeon); // 밀어내기 성공: 플레이어가 떠난 자리에 진입
+                this.dx = 0; // 이동 후 x방향 초기화
+                this.dy = 0; // 이동 후 y방향 초기화
+                return;
+            }
+        } 
+        else { // 2. 일반 이동
+            super.move(this.dx, this.dy, dungeon); 
+            this.dx = 0;
+            this.dy = 0;
         }
     }
 
     public void update(Dungeon dungeon, Player player) {
         this.frameCounter++; // 1. 카운터를 증가시키고, 이동 주기가 아닐 경우 즉시 종료
+
         if (this.frameCounter < MOVE_SPEED_FACTOR) {  // MOVE_SPEED_FACTOR 주기가 채워지지 않았으면 이동하지 않음
             return;
         }
@@ -47,22 +73,17 @@ public class Enemy extends Entity{
         int distanceSquared = playerXDiff * playerXDiff + playerYDiff * playerYDiff;
 
         if (playerDetected) {
-            // 이미 탐지된 상태에서 탐지 유지 범위(detection + additional)를 벗어났다면
-            if (distanceSquared > curruntdetectionRangeSquared) {
+            if (distanceSquared > curruntdetectionRangeSquared) { // 이미 탐지된 상태에서 탐지 유지 범위(detection + additional)를 벗어났다면
                 this.playerDetected = false; // 탐지 해제
                 curruntdetectionRangeSquared = detectionRangeSquared; // 탐지 범위 기본으로 초기화
             }
-        } 
+        }
         else { 
-            // 탐지 조건 검사 전에 현재 탐지 범위를 기본으로 재설정
-            // 미탐지 상태에서는 넓은 범위가 적용되지 않음
-            this.curruntdetectionRangeSquared = this.detectionRangeSquared; 
+            this.curruntdetectionRangeSquared = this.detectionRangeSquared; // 탐지 조건 검사 전에 현재 탐지 범위를 기본으로 재설정
 
-            // 아직 탐지되지 않은 상태에서 detectionRange안에 들어왔다면
-            if (distanceSquared <= this.curruntdetectionRangeSquared) { 
+            if (distanceSquared <= this.curruntdetectionRangeSquared) { // 아직 탐지되지 않은 상태에서 detectionRange안에 들어왔다면
                 this.playerDetected = true; // 탐지 시작
-                // 탐지 시작 시에만 추적 유지 범위로 넓힘
-                this.curruntdetectionRangeSquared = this.detectionRangeSquared + this.addtionalRangeSquared;
+                this.curruntdetectionRangeSquared = this.detectionRangeSquared + this.addtionalRangeSquared; // 탐지 시작 시에만 추적 유지 범위로 넓힘
             } 
         }
 
@@ -71,37 +92,30 @@ public class Enemy extends Entity{
         if (playerDetected) {
             target = new Point(player.getX(), player.getY());
         } 
-        else { 
-            // 탐지되지 않았다면 무조건 초기 위치를 목표로 설정하여 복귀를 시도
+        else { // 탐지되지 않았다면 무조건 초기 위치를 목표로 설정하여 복귀를 시도
             target = new Point(initialX, initialY);
-        
-            // 초기 위치에 도착했고 미탐지 상태라면, BFS를 건너뛰고 멈춤
-            if (this.x == initialX && this.y == initialY) {
+
+            if (this.x == initialX && this.y == initialY) { // 초기 위치에 도착했고 미탐지 상태라면
                 return; // BFS 및 이동 로직 건너뛰고 멈춤
             }
         }
         
-        // Pathfinder를 사용하여 다음 이동할 칸의 좌표를 얻음
-        Point nextStep = Pathfinder.findNextStep(dungeon, this.x, this.y, target.x, target.y);
+        Point nextStep = Pathfinder.findNextStep(dungeon, this.x, this.y, target.x, target.y); // Pathfinder를 사용하여 다음 이동할 칸의 좌표를 얻음
 
         if (nextStep != null) {
-            int dx = nextStep.x - this.x;
-            int dy = nextStep.y - this.y;
+            this.dx = nextStep.x - this.x;
+            this.dy = nextStep.y - this.y;
             
             // 1. 타일 상태 업데이트 (이동 전)
             Tile currentTile = dungeon.getTile(this.x, this.y);
             if (currentTile != null) currentTile.setIsEnemyhere(false); 
             
             // 2. 이동 실행
-            move(dx, dy, dungeon);
+            move(dungeon);
             
             // 3. 타일 상태 업데이트 (이동 후)
             Tile newTile = dungeon.getTile(this.x, this.y);
             if (newTile != null) newTile.setIsEnemyhere(true);
-        } 
-        // **[추가]** 경로가 없을 때, 초기 위치 복귀 시 멈춤 처리
-        else if (!playerDetected && this.x == initialX && this.y == initialY) {
-            // 이미 멈춰 있으므로 아무것도 하지 않음
         }
     }
 
