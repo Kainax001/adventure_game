@@ -1,6 +1,8 @@
 package com.game_adventure.entity;
 
 import com.game_adventure.map.Dungeon;
+import com.game_adventure.map.Tile;
+
 import java.awt.Color; // import
 import java.awt.Graphics; // import
 import java.lang.Math; // import
@@ -114,16 +116,20 @@ public class Enemy extends Entity{
             }
         }
         
-        // 3. 이동 시도 (move() 함수가 isWalkable을 체크합니다.)
-        if (dungeon.isWalkable(this.x + priorityDx, this.y + priorityDy)) {
-            // 1순위 이동 가능하면 이동
-            move(priorityDx, priorityDy, dungeon);
+        Tile targetTile = dungeon.getTile(this.x, this.y);
+        targetTile.setIsEnemyhere(false); // 현재 타일에서 적이 떠남 표시
+        
+        // 3. 이동 시도 move() 함수가 isWalkable을 체크
+        if (dungeon.isWalkable(this.x + priorityDx, this.y + priorityDy)) { // 1순위 이동 가능성 체크
+            move(priorityDx, priorityDy, dungeon); // 1순위 이동 가능하면 이동       
         } 
         else if ((secondaryDx != 0 || secondaryDy != 0) && 
-                dungeon.isWalkable(this.x + secondaryDx, this.y + secondaryDy)) {
-            // 2순위 이동 가능하면 이동
-            move(secondaryDx, secondaryDy, dungeon);
+                dungeon.isWalkable(this.x + secondaryDx, this.y + secondaryDy)) { // 2순위 이동 가능성 체크
+            move(secondaryDx, secondaryDy, dungeon); // 2순위 이동 가능하면 이동
         }
+
+        targetTile = dungeon.getTile(this.x, this.y);
+        targetTile.setIsEnemyhere(true); // 도착 타일에 적이 있음 표시
     }
 
     @Override

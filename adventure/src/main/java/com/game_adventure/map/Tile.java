@@ -1,9 +1,10 @@
 package com.game_adventure.map;
 
 import java.awt.Graphics; // Swing 그래픽 import
-
 public abstract class Tile {
     protected boolean isWalkable;
+    protected boolean isEnemyhere; // 적 존재 여부 필드
+    protected boolean isPlayerhere; // 플레이어 존재 여부 필드
 
     // **[추가]** 모든 타일이 가질 그리드 좌표 필드
     protected int x; 
@@ -14,9 +15,17 @@ public abstract class Tile {
         this.isWalkable = isWalkable;
         this.x = x; // 초기화
         this.y = y; // 초기화
+        this.isEnemyhere = false;
+        this.isPlayerhere = false;
+    }
+
+    public void setIsEnemyhere(boolean value) {
+        this.isEnemyhere = value;
     }
 
     public boolean isWalkable() { return isWalkable; }
+    public boolean isEnemyhere() { return isEnemyhere; }
+    public boolean isPlayerhere() { return isPlayerhere; }
 
     // **[추가]** getX() 및 getY() 메서드 추가 (GamePanel에서 호출할 메서드)
     public int getX() { return x; } 
