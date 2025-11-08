@@ -5,7 +5,6 @@ import java.awt.Graphics; // Swing 그래픽 import
 public abstract class Entity {
     protected int x; // 타일 좌표 (x)
     protected int y; // 타일 좌표 (y)
-
     public Entity(int x, int y) {
         this.x = x;
         this.y = y;
