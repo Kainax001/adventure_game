@@ -21,6 +21,7 @@ public class InputHandler implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode(); 
+        boolean isShiftDown = e.isShiftDown(); // Shift 키 상태 확인
 
         // 모든 상태 판정과 실행을 Game 클래스에 위임
         
@@ -48,7 +49,13 @@ public class InputHandler implements KeyListener {
         }
 
         if (dx != 0 || dy != 0) {
+            if (isShiftDown) {
+            // **[핵심]** Shift가 눌렸다면 DASH 명령을 Game에 전달
+            this.game.handleDashMovement(dx, dy); // Game에 새로운 메서드 필요
+        } else {
+            // Shift가 눌리지 않았다면 일반 이동
             this.game.handleMovement(dx, dy); 
+        } 
         }
     }
 

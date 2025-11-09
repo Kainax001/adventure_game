@@ -96,12 +96,20 @@ public class Game implements Runnable {
         }
     }
 
+    private void checkAndHandleLevelTransition(int oldX, int oldY) {
+        // 플레이어의 위치가 실제로 바뀌었는지 확인
+        if (player.getX() != oldX || player.getY() != oldY) {
+            // 출구 타일 위에 있는지 확인
+            if (gamePanel.isPlayerAtExit()) { 
+                setIsAwaitingLevelTransition(true);
+                gamePanel.setShowWinMessage(true);
+                gamePanel.repaint();
+            }
+        }
+    }
 
-    // **[추가]** 2. 이동 및 판정 처리 로직 (InputHandler로부터 위임)
+
     public void handleMovement(int dx, int dy) {
-        // [분기 3]의 WASD 이동 및 판정 로직 복원
-        
-        // 대기 상태에서는 이동하지 않음 (InputHandler에서 이미 걸러졌지만, 안전 장치)
         if (isAwaitingQuitConfirmation || isAwaitingLevelTransition()) {
             return;
         }
@@ -111,21 +119,28 @@ public class Game implements Runnable {
         
         player.move(dx, dy, dungeon); // 플레이어 이동
 
-        // 이동 후, 출구 타일 위에 있는지 확인하고 대기 상태로 전환 (판정 로직 복원)
-        if (player.getX() != oldX || player.getY() != oldY) {
-            if (gamePanel.isPlayerAtExit()) { 
-                 setIsAwaitingLevelTransition(true);
-                 gamePanel.setShowWinMessage(true);
-                 gamePanel.repaint();
-            }
+        checkAndHandleLevelTransition(oldX, oldY);
+    }
+
+
+    public void handleDashMovement(int dx, int dy) {
+        if (isAwaitingQuitConfirmation || isAwaitingLevelTransition()) {
+            return;
         }
+
+        int oldX = player.getX();
+        int oldY = player.getY();
+
+        player.dash(dx, dy, dungeon); // 플레이어 대시 실행
+
+        checkAndHandleLevelTransition(oldX, oldY);
     }
 
     /**
      * 새 레벨을 생성하고 게임 상태를 초기화하는 메서드
      */
     private void generateNewLevel() {
-        System.out.println("새로운 던전 생성 중...");
+        System.out.println("Generating new level...");
         
         // 새 맵을 그리기 전에 level 전환 메시지 숨기기
         gamePanel.setShowWinMessage(false); 
@@ -157,7 +172,7 @@ public class Game implements Runnable {
         frame.pack();
         frame.setLocationRelativeTo(null);
         
-        System.out.println("새로운 던전이 생성되었습니다!");
+        System.out.println("New level generated.");
     }
 
     public void startGame() {
@@ -167,13 +182,12 @@ public class Game implements Runnable {
 
     private void updateLogic() {
     // 1. 적 엔티티 업데이트
-    if (dungeon.getEnemies() != null) {
-        for (Enemy enemy : dungeon.getEnemies()) {
-            // 적의 위치를 업데이트합니다.
-            enemy.update(dungeon, player); 
+    if (dungeon.getEnemies() != null) {             // 적이 존재할 경우에만
+        for (Enemy enemy : dungeon.getEnemies()) {  // 적의 수만큼
+            enemy.update(dungeon, player);          // 적 업데이트
         }
     }
-    // 2. 다른 엔티티 업데이트 (필요 시)
+    player.update(); // 플레이어 업데이트
 }
     
     @Override

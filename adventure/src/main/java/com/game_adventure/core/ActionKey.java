@@ -6,5 +6,6 @@ package com.game_adventure.core;
 public enum ActionKey {
     YES, 
     NO, 
-    QUIT
+    QUIT,
+    DASH
 }
