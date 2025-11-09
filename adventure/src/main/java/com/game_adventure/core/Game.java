@@ -6,10 +6,8 @@ import com.game_adventure.entity.Player;
 import com.game_adventure.generator.DungeonGenerator;
 
 import javax.swing.JFrame;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-public class Game implements KeyListener, Runnable {
+public class Game implements Runnable {
 
     private Dungeon dungeon;
     private Player player;
@@ -27,6 +25,18 @@ public class Game implements KeyListener, Runnable {
     public boolean isAwaitingQuitConfirmation = false;
     private boolean isAwaitingLevelTransition = false; 
 
+    // isAwaitingQuitConfirmation Setter
+    public void setIsAwaitingQuitConfirmation(boolean state) {
+        this.isAwaitingQuitConfirmation = state;
+    }
+    // isAwaitingLevelTransition Getter/Setter
+    public boolean isAwaitingLevelTransition() {
+        return isAwaitingLevelTransition;
+    }
+    public void setIsAwaitingLevelTransition(boolean state) {
+        this.isAwaitingLevelTransition = state;
+    }
+
     public Game() {
         this.generator = new DungeonGenerator();
         
@@ -43,12 +53,72 @@ public class Game implements KeyListener, Runnable {
         frame.setResizable(false); 
         frame.add(gamePanel); 
         frame.pack(); 
-        frame.addKeyListener(this); 
         frame.setLocationRelativeTo(null); 
-        frame.setVisible(true); 
+        frame.setVisible(true);
+
+        InputHandler inputHandler = new InputHandler(this, this.player, this.dungeon, this.gamePanel);
+        frame.addKeyListener(inputHandler);
 
         // 4. 게임 루프(스레드) 시작
         startGame();
+    }
+
+    // **[추가]** 1. 상태/액션 키 처리 로직 (InputHandler로부터 위임)
+    public void handleActionKey(ActionKey action) {
+        if (isAwaitingQuitConfirmation) {
+            if (action == ActionKey.YES) { System.exit(0); } 
+            else if (action == ActionKey.NO) { 
+                setIsAwaitingQuitConfirmation(false);
+                gamePanel.setShowQuitMessage(false);
+                gamePanel.repaint(); 
+            }
+            return;
+        }
+
+        if (isAwaitingLevelTransition()) {
+            if (action == ActionKey.YES) {
+                setIsAwaitingLevelTransition(false);
+                gamePanel.setShowWinMessage(false);
+                generateNewLevel();
+            } else if (action == ActionKey.NO) {
+                setIsAwaitingLevelTransition(false);
+                gamePanel.setShowWinMessage(false);
+                gamePanel.repaint();
+            }
+            return;
+        }
+        
+        // 일반 플레이 중 Q 키 처리
+        if (action == ActionKey.QUIT) {
+            setIsAwaitingQuitConfirmation(true);
+            gamePanel.setShowQuitMessage(true);
+            gamePanel.repaint();
+        }
+    }
+
+
+    // **[추가]** 2. 이동 및 판정 처리 로직 (InputHandler로부터 위임)
+    public void handleMovement(int dx, int dy) {
+        // [분기 3]의 WASD 이동 및 판정 로직 복원
+        
+        // 대기 상태에서는 이동하지 않음 (InputHandler에서 이미 걸러졌지만, 안전 장치)
+        if (isAwaitingQuitConfirmation || isAwaitingLevelTransition()) {
+            return;
+        }
+
+        int oldX = player.getX();
+        int oldY = player.getY();
+        
+        player.move(dx, dy, dungeon); // 플레이어 이동
+
+        // 이동 후, 출구 타일 위에 있는지 확인하고 대기 상태로 전환 (판정 로직 복원)
+        if (player.getX() != oldX || player.getY() != oldY) {
+            if (gamePanel.isPlayerAtExit()) { 
+                 setIsAwaitingLevelTransition(true);
+                 gamePanel.setShowWinMessage(true);
+                 gamePanel.repaint();
+            }
+        }
     }
 
     /**
@@ -134,66 +204,4 @@ public class Game implements KeyListener, Runnable {
             }
         }
     }
-
-    // --- [KeyListener 인터페이스 메서드 구현] ---
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode(); 
-
-        // [분기 1] "종료 확인 대기 중"일 때 (Y 또는 N 키만 받음)
-        if (isAwaitingQuitConfirmation) {
-            if (keyCode == KeyEvent.VK_Y) {
-                System.exit(0);
-            } else if (keyCode == KeyEvent.VK_N) {
-                isAwaitingQuitConfirmation = false;
-                gamePanel.setShowQuitMessage(false);
-                gamePanel.repaint(); 
-            }
-            return;
-        }
-
-        // [분기 2] "레벨 전환 대기 중"일 때 (Y 또는 N 키만 허용) 
-        if (isAwaitingLevelTransition) {
-            if (keyCode == KeyEvent.VK_Y) {
-                isAwaitingLevelTransition = false;
-                gamePanel.setShowWinMessage(false);
-                generateNewLevel(); // Y 누르면 새 레벨 생성 (내부에서 갱신됨)
-            } else if (keyCode == KeyEvent.VK_N) {
-                isAwaitingLevelTransition = false;
-                gamePanel.setShowWinMessage(false);
-                gamePanel.repaint(); // N 누르면 메시지 숨기고 현재 레벨 유지
-            }
-            return;
-        }
-        
-        // [분기 3] "일반 플레이 중"일 때 (WASD, Q 키만 받음)
-        int oldX = player.getX();
-        int oldY = player.getY();
-        
-        switch (keyCode) {
-            case KeyEvent.VK_W: player.move(0, -1, dungeon); break;
-            case KeyEvent.VK_A: player.move(-1, 0, dungeon); break;
-            case KeyEvent.VK_S: player.move(0, 1, dungeon); break;
-            case KeyEvent.VK_D: player.move(1, 0, dungeon); break;
-            case KeyEvent.VK_Q:
-                isAwaitingQuitConfirmation = true; 
-                gamePanel.setShowQuitMessage(true);
-                gamePanel.repaint(); // Q를 눌러 메시지 표시 시작
-                break;
-        }
-
-        // [추가] 이동 후, 출구 타일 위에 있는지 확인하고 대기 상태로 전환
-        if ((oldX != player.getX() || oldY != player.getY())) {
-            
-            if (gamePanel.isPlayerAtExit()) { 
-                 isAwaitingLevelTransition = true;
-                 gamePanel.setShowWinMessage(true);
-                 gamePanel.repaint(); // 메시지 띄울 때 갱신
-            }
-        }
-    }
-
-    @Override public void keyTyped(KeyEvent e) {}
-    @Override public void keyReleased(KeyEvent e) {}
 }
