@@ -158,10 +158,6 @@ public class Game implements Runnable {
         
         // 3. 필드 업데이트: Player 객체는 그대로 두고 Dungeon 객체만 새 것으로
         this.dungeon = newDungeon; 
-        
-        // 4. GamePanel 업데이트 및 프레임 크기 재조정
-        //    GamePanel은 setDungeon을 통해 새 던전을 받지만,
-        //    던전 내부의 Player 객체는 Game.java의 Player와는 다릅니다.
 
         // Dungeon 객체 내부의 Player 객체도 Game.java의 객체와 동일하게 설정
         // Dungeon 클래스에 Player 객체를 교체하는 Setter가 필요
@@ -181,14 +177,16 @@ public class Game implements Runnable {
     }
 
     private void updateLogic() {
-    // 1. 적 엔티티 업데이트
-    if (dungeon.getEnemies() != null) {             // 적이 존재할 경우에만
-        for (Enemy enemy : dungeon.getEnemies()) {  // 적의 수만큼
-            enemy.update(dungeon, player);          // 적 업데이트
+        
+        // 적 업데이트
+        if (dungeon.getEnemies() != null) {             // 적이 존재할 경우에만
+            for (Enemy enemy : dungeon.getEnemies()) {  // 적의 수만큼
+                enemy.update(dungeon, player);          // 적 업데이트
+            }
         }
+            
+        player.update(); // 플레이어 업데이트
     }
-    player.update(); // 플레이어 업데이트
-}
     
     @Override
     public void run() {

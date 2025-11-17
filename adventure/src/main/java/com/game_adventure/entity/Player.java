@@ -8,7 +8,7 @@ import java.awt.Graphics; // import
 
 public class Player extends Entity {
     private int dashCooldown = 0; // 대시 쿨다운 타이머
-    private final int DASH_COOLDOWN_TIME = 100; // 대시 쿨다운 시간 (프레임 단위)
+    private final int DASH_COOLDOWN_TIME = 90; // 대시 쿨다운 시간 (프레임 단위)
     private final int DASH_DISTANCE = 2; // 대시 거리
 
     public Player(int x, int y) {
