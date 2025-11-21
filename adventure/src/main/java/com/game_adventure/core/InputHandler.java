@@ -45,7 +45,6 @@ public class InputHandler implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode(); 
-        boolean isShiftDown = e.isShiftDown(); // Shift 키 상태 확인
 
         // 모든 상태 판정과 실행을 Game 클래스에 위임
         
@@ -74,7 +73,7 @@ public class InputHandler implements KeyListener {
     }
 
     @Override public void keyTyped(KeyEvent e) {}
-    
+
     @Override public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
 

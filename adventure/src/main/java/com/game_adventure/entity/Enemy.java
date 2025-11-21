@@ -20,16 +20,18 @@ public class Enemy extends Entity{
 
     private int dx = 0;
     private int dy = 0;
+    private final int initialX;
+    private final int initialY;
 
     public Enemy (int x, int y){
-        super(x, y);
+        super(x, y, EnemyStat.createRandomStats());
+
+        this.initialX = x;
+        this.initialY = y;
         this.detectionRangeSquared = 9; // 기본 탐지 범위 설정 3 반지름 원
         this.addtionalRangeSquared = 72; // 추가 탐지 범위 설정
         this.curruntdetectionRangeSquared = detectionRangeSquared; // 현재 탐지 범위 기본 초기화
     }
-
-    private final int initialX = this.x;
-    private final int initialY = this.y;
 
     public void move(Dungeon dungeon) {
         int newX = this.x + this.dx;
@@ -43,7 +45,13 @@ public class Enemy extends Entity{
             int oldPlayerX = player.getX();
             int oldPlayerY = player.getY();
 
+            Tile playerCurrentTile = dungeon.getTile(oldPlayerX, oldPlayerY);
+            playerCurrentTile.setIsPlayerhere(false);
+
             Battle.pushEntity(player, this.dx, this.dy, dungeon, 2); // Battle 클래스로 밀어내기 로직 위임 (2회 시도 가정)
+
+            Tile playerNewTile = dungeon.getTile(player.getX(), player.getY());
+            playerNewTile.setIsPlayerhere(true);
 
             // 플레이어가 이동에 성공했는지 확인
             if (player.getX() != oldPlayerX || player.getY() != oldPlayerY) {
