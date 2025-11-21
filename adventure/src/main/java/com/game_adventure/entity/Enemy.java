@@ -23,7 +23,7 @@ public class Enemy extends Entity{
 
     public Enemy (int x, int y){
         super(x, y);
-        this.detectionRangeSquared = 9; // 기본 탐지 범위 설정 피타고라스라 제곱
+        this.detectionRangeSquared = 9; // 기본 탐지 범위 설정 3 반지름 원
         this.addtionalRangeSquared = 72; // 추가 탐지 범위 설정
         this.curruntdetectionRangeSquared = detectionRangeSquared; // 현재 탐지 범위 기본 초기화
     }

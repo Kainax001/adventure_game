@@ -1,6 +1,7 @@
 package com.game_adventure.combat;
 
 import com.game_adventure.map.Dungeon;
+import com.game_adventure.map.Tile;
 import com.game_adventure.entity.Entity;
 
 public class Battle {
@@ -16,22 +17,30 @@ public class Battle {
         int blockedCount = 0;
 
         for (int attempt = 0; attempt < attempts; attempt++) {
-            int oldX = targetEntity.getX();
-            int oldY = targetEntity.getY();
-            
-            // [주의] targetEntity가 Player일 경우, Player.move(dx, dy, dungeon)을 호출합니다.
-            // Entity 클래스에 move 메서드가 구현되어 있으면 (Entity.move(int dx, int dy, Dungeon dungeon) 형태)
-            // 모든 엔티티가 이 move 메서드를 사용하도록 코드를 통일해야 합니다.
+            int currentX = targetEntity.getX();
+            int currentY = targetEntity.getY();
 
-            // 1. 엔티티에게 이동 요청 (해당 엔티티의 move 로직이 호출됨)
-            // Entity 추상 클래스가 move(int dx, int dy, Dungeon dungeon)을 가지도록 가정합니다.
-            targetEntity.move(pushDx, pushDy, dungeon); 
-            
-            // 2. 위치가 변하지 않았다면 (이동이 막혔다면)
-            if (targetEntity.getX() == oldX && targetEntity.getY() == oldY) {
+            int nextX = currentX + pushDx;
+            int nextY = currentY + pushDy;
+
+            // 1. 벽인지 확인 (벽이면 못 밀림)
+            if (!dungeon.isWalkable(nextX, nextY)) {
                 blockedCount++; 
+                break; // 즉시 중단
             }
+
+            // 2. 뒤에 다른 적이 있는지 확인 (겹침 방지)
+            Tile nextTile = dungeon.getTile(nextX, nextY);
+            if (nextTile.isEnemyhere()) { 
+                blockedCount++;
+                break; 
+            }
+
+            // 3. [핵심 수정] move() 대신 setPosition() 사용
+            // 이동 로직(속도, 애니메이션 등)을 무시하고 좌표만 즉시 변경 -> 딜레이 없음
+            targetEntity.setPosition(nextX, nextY); 
         }
-        return blockedCount;
+        
+        return blockedCount; // 막힌 횟수 반환 (0이면 성공, >0이면 실패)
     }
 }

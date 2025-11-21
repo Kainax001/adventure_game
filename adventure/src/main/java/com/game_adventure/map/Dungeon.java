@@ -28,6 +28,15 @@ public class Dungeon {
     public List<Enemy> getEnemies() { return enemies; } // 적 리스트 Getter
     public void addEnemy(Enemy enemy) { this.enemies.add(enemy); } // 적 추가 메서드
 
+    public Enemy getEnemyAt(int x, int y) {
+        for (Enemy enemy : enemies) {
+            if (enemy.getX() == x && enemy.getY() == y) {
+                return enemy;
+            }
+        }
+        return null; // 해당 위치에 적이 없을 경우
+    }
+
     // 시작 위치 Getter
     public int getStartX() { return startX; }
     public int getStartY() { return startY; }
