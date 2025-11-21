@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.game_adventure.entity.Enemy;
 import com.game_adventure.entity.Player;
+import com.game_adventure.entity.Entity;
 
 public class Dungeon {
 
@@ -71,6 +72,13 @@ public class Dungeon {
     // 맵의 높이를 반환
     public int getHeight() {
         return tiles.length;
+    }
+
+    // 죽은 적을 리스트에서 삭제하는 메서드
+    public void removeEnemy(Entity enemy) {
+        if (enemies != null) {
+            enemies.remove(enemy);
+        }
     }
 
     // (x, y) 위치의 타일 객체를 반환

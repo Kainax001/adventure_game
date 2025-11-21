@@ -2,6 +2,7 @@ package com.game_adventure.entity;
 
 import com.game_adventure.map.Dungeon;
 import com.game_adventure.map.Tile;
+import com.game_adventure.ui.HealthBarRenderer;
 import com.game_adventure.combat.Battle;
 
 import java.awt.Color;
@@ -17,6 +18,7 @@ public class Enemy extends Entity{
     private int frameCounter = 0; // 현재 프레임 카운터를 저장
     private boolean playerDetected = false;
     private int curruntdetectionRangeSquared;
+    private HealthBarRenderer healthBarRenderer;
 
     private int dx = 0;
     private int dy = 0;
@@ -31,6 +33,8 @@ public class Enemy extends Entity{
         this.detectionRangeSquared = 9; // 기본 탐지 범위 설정 3 반지름 원
         this.addtionalRangeSquared = 72; // 추가 탐지 범위 설정
         this.curruntdetectionRangeSquared = detectionRangeSquared; // 현재 탐지 범위 기본 초기화
+
+        this.healthBarRenderer = new HealthBarRenderer(Color.RED);
     }
 
     public void move(Dungeon dungeon) {
@@ -131,5 +135,7 @@ public class Enemy extends Entity{
     public void draw(Graphics g, int tileSize) {
         g.setColor(Color.RED); 
         g.fillOval(x * tileSize, y * tileSize, tileSize, tileSize);
+
+        healthBarRenderer.draw(g, this.x, this.y, tileSize, this.getStats());
     }
 }
