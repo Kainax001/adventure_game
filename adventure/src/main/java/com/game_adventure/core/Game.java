@@ -14,6 +14,7 @@ public class Game implements Runnable {
     private GamePanel gamePanel;
     private JFrame frame;
     private DungeonGenerator generator;
+    private InputHandler inputHandler;
 
     // 맵 크기 상수
     private final int MAP_WIDTH = 50;
@@ -58,6 +59,9 @@ public class Game implements Runnable {
 
         InputHandler inputHandler = new InputHandler(this, this.player, this.dungeon, this.gamePanel);
         frame.addKeyListener(inputHandler);
+
+        this.inputHandler = new InputHandler(this, this.player, this.dungeon, this.gamePanel);
+        frame.addKeyListener(this.inputHandler);
 
         // 4. 게임 루프(스레드) 시작
         startGame();
@@ -183,6 +187,10 @@ public class Game implements Runnable {
             for (Enemy enemy : dungeon.getEnemies()) {  // 적의 수만큼
                 enemy.update(dungeon, player);          // 적 업데이트
             }
+        }
+
+        if (inputHandler != null) {
+            inputHandler.update(); 
         }
             
         player.update(); // 플레이어 업데이트
