@@ -19,6 +19,7 @@ public class Enemy extends Entity{
     private boolean playerDetected = false;
     private int curruntdetectionRangeSquared;
     private HealthBarRenderer healthBarRenderer;
+    private Color enemyColor;
 
     private int dx = 0;
     private int dy = 0;
@@ -34,6 +35,7 @@ public class Enemy extends Entity{
         this.addtionalRangeSquared = 72; // 추가 탐지 범위 설정
         this.curruntdetectionRangeSquared = detectionRangeSquared; // 현재 탐지 범위 기본 초기화
 
+        this.enemyColor = EnemyStat.calculateColorByHp(this.getStats().getMaxHp());
         this.healthBarRenderer = new HealthBarRenderer(Color.RED);
     }
 
@@ -133,7 +135,7 @@ public class Enemy extends Entity{
 
     @Override
     public void draw(Graphics g, int tileSize) {
-        g.setColor(Color.RED); 
+        g.setColor(this.enemyColor); 
         g.fillOval(x * tileSize, y * tileSize, tileSize, tileSize);
 
         healthBarRenderer.draw(g, this.x, this.y, tileSize, this.getStats());
