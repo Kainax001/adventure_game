@@ -36,7 +36,7 @@ public enum EnemyStat {
         int minHp = HP.min;
         int maxHpLimit = HP.max;
 
-        // 비율 계산 (0.0 ~ 1.0)
+        // 비율 계산
         float ratio = (float)(currentMaxHp - minHp) / (maxHpLimit - minHp);
         
         // 안전장치 (비율이 0보다 작거나 1보다 크면 조정)

@@ -4,6 +4,7 @@ import com.game_adventure.combat.Battle;
 import com.game_adventure.combat.CombatCalculator;
 import com.game_adventure.map.Dungeon;
 import com.game_adventure.map.Tile;
+import com.game_adventure.core.ScoreCalculator;
 
 public class PlayerMovementLogic {
 
@@ -38,9 +39,18 @@ public class PlayerMovementLogic {
 
                 // 적 사망 처리
                 if (enemy.isDead()) {
+                    if (enemy instanceof Enemy) {
+                        int reward = ScoreCalculator.calculateKillReward((Enemy) enemy);
+                        
+                        int currentScore = player.getScore();
+                        player.setScore(currentScore + reward);
+                        
+                        System.out.println("점수 획득! +" + reward + " (현재 점수: " + player.getScore() + ")");
+                    }
+                    
                     newtile.setIsEnemyhere(false);
                     dungeon.removeEnemy(enemy);
-                } 
+                }
                 else {
                     // 적 생존 시 밀쳐내기 (Battle 클래스 위임)
                     newtile.setIsEnemyhere(false); 
@@ -59,7 +69,7 @@ public class PlayerMovementLogic {
             // 타일 점유 상태 갱신
             currentTile.setIsPlayerhere(false); 
             
-            // [중요] Player의 좌표를 강제로 변경 (Entity.setPosition 활용)
+            // Player의 좌표를 강제로 변경 (Entity.setPosition 활용)
             player.setPosition(newX, newY);
             
             newtile.setIsPlayerhere(true); 

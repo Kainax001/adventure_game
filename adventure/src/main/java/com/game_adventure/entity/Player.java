@@ -16,9 +16,12 @@ public class Player extends Entity {
 
     private HealthBarRenderer healthBarRenderer;
 
+    private int score = 0;
+
     public Player(int x, int y) {
         super(x, y, createStats(200, 20));
         this.healthBarRenderer = new HealthBarRenderer(Color.GREEN);
+        this.score = 0;
     }
 
     public void update() { //쿨다운을 1프레임마다 감소
@@ -49,17 +52,18 @@ public class Player extends Entity {
         }
     }
 
-    public void setMoveTimer(int time) {
-        this.moveTimer = time;
-    }
+    // --- [Getter & Setter] ---
 
-    public int getMoveTimer() {
-        return this.moveTimer;
-    }
+    // 점수
+    public int getScore() { return this.score; }
+    public void setScore(int score) { this.score = score; }
+
+    // 이동 타이머
+    public int getMoveTimer() { return this.moveTimer; }
+    public void setMoveTimer(int time) { this.moveTimer = time; }
     
-    public int getMoveSpeedFactor() {
-        return MOVE_SPEED_FACTOR;
-    }
+    // 이동 속도 상수
+    public int getMoveSpeedFactor() { return MOVE_SPEED_FACTOR; }
 
     @Override
     public void draw(Graphics g, int tileSize) {
