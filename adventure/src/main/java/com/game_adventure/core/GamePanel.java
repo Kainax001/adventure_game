@@ -5,33 +5,42 @@ import com.game_adventure.map.Tile;
 import com.game_adventure.entity.Enemy;
 import com.game_adventure.entity.Player;
 import com.game_adventure.map.ExitTile;
+import com.game_adventure.ui.ScoreRenderer;
+import com.game_adventure.ui.GameStatusRenderer;
 
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 
 public class GamePanel extends JPanel {
 
     private Dungeon dungeon;
-    private static final int TILE_SIZE = 16;
+    private static final int TILE_SIZE = 32;
     
     private boolean showQuitMessage = false;
     private boolean showWinMessage = false; // 승리 메시지 표시 플래그
 
+    private ScoreRenderer scoreRenderer;
+    private GameStatusRenderer gameStatusRenderer;
+
     public GamePanel(Dungeon dungeon) {
         this.dungeon = dungeon;
+
+        this.scoreRenderer = new ScoreRenderer();
+        this.gameStatusRenderer = new GameStatusRenderer();
+
         int width = dungeon.getWidth() * TILE_SIZE;
         int height = dungeon.getHeight() * TILE_SIZE;
         setPreferredSize(new Dimension(width, height));
-        setBackground(Color.BLACK); 
+        setBackground(Color.BLACK);
     }
 
     // --- [Setter 및 Getter 메서드] ---
 
     public void setDungeon(Dungeon newDungeon) {
         this.dungeon = newDungeon;
+
         int width = newDungeon.getWidth() * TILE_SIZE;
         int height = newDungeon.getHeight() * TILE_SIZE;
         setPreferredSize(new Dimension(width, height));
@@ -74,8 +83,28 @@ public class GamePanel extends JPanel {
         // 3. 모든 적 그리기
         drawEnemies(g);
 
-        // 4. 오버레이 메시지 그리기 (항상 마지막에 그려져야 함)
-        drawOverlayMessages(g);
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
+        Player player = dungeon.getPlayer();
+
+        // 점수 표시 (항상 표시)
+        if (player != null) {
+            scoreRenderer.draw(g, player.getScore());
+        }
+
+        // 상태 메시지 오버레이 (우선순위에 따라 하나만 표시)
+        if (showQuitMessage) {
+            // 종료 확인창
+            gameStatusRenderer.drawQuitConfirmation(g, panelWidth, panelHeight);
+        } 
+        else if (showWinMessage) {
+            // 레벨 클리어
+            gameStatusRenderer.drawLevelClear(g, panelWidth, panelHeight);
+        }
+        else if (player != null && player.isDead()) {
+            // 플레이어 사망 시 게임 오버 화면
+            gameStatusRenderer.drawGameOver(g, panelWidth, panelHeight);
+        }
     }
     
     // --- [헬퍼 그리기 메서드] ---
@@ -115,33 +144,4 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void drawOverlayMessages(Graphics g) {
-        // [수정] 승리 메시지: showWinMessage 플래그로만 제어됨 (isPlayerAtExit 로직 제거됨)
-        if (showWinMessage) { 
-            drawCenteredMessage(g, "Level Cleared! Next level? (Y/N)", 30, 
-                                new Color(0, 0, 0, 150), 
-                                new Color(255, 255, 255, 250));
-        }
-        
-        // 종료 확인 메시지 표시
-        if (showQuitMessage) {
-            drawCenteredMessage(g, "You really want to Quit? (Y/N)", 20, 
-                                new Color(0, 0, 0, 150), 
-                                Color.WHITE);
-        }
-    }
-    
-    // 텍스트를 중앙에 정렬하여 그리는 범용 헬퍼 메서드
-    private void drawCenteredMessage(Graphics g, String msg, int fontSize, Color bgColor, Color textColor) {
-        // 배경 사각형
-        g.setColor(bgColor); 
-        g.fillRect(0, 0, getWidth(), getHeight()); 
-
-        // 텍스트
-        g.setColor(textColor);
-        g.setFont(new Font("Arial", Font.BOLD, fontSize));
-
-        int strWidth = g.getFontMetrics().stringWidth(msg);
-        g.drawString(msg, (getWidth() - strWidth) / 2, getHeight() / 2);
-    }
 }
