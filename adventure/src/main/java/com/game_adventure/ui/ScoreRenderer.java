@@ -6,18 +6,18 @@ import java.awt.Graphics;
 
 public class ScoreRenderer {
 
-    private final Font scoreFont;
+    private final Font scoreFont; // 점수 표시용 폰트
 
-    public ScoreRenderer() {
+    public ScoreRenderer() { // 기본 폰트 설정
         this.scoreFont = new Font("Arial", Font.BOLD, 20);
     }
 
     public void draw(Graphics g, int score) {
         g.setFont(scoreFont);
         
-        String text = "SCORE: " + score;
-        int x = 20; 
-        int y = 40; 
+        String text = "SCORE: " + score; // 표시할 점수 문자열
+        int x = 20; // 왼쪽 상단 여백
+        int y = 40; // 위쪽 여백
 
         // 그림자
         g.setColor(Color.BLACK);

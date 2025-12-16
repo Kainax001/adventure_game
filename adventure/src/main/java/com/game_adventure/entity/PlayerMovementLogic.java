@@ -37,45 +37,40 @@ public class PlayerMovementLogic {
                 // [전투 로직] CombatCalculator에게 위임
                 CombatCalculator.calculateDamage(player, enemy, isDashing);
 
-                // 적 사망 처리
-                if (enemy.isDead()) {
+                if (enemy.isDead()) { // 적 사망 처리
                     if (enemy instanceof Enemy) {
-                        int reward = ScoreCalculator.calculateKillReward((Enemy) enemy);
+                        int reward = ScoreCalculator.calculateKillReward((Enemy) enemy); // 점수 보상 계산
                         
-                        int currentScore = player.getScore();
-                        player.setScore(currentScore + reward);
+                        int currentScore = player.getScore(); // 현재 점수 가져오기
+                        player.setScore(currentScore + reward); // 점수 갱신
                         
-                        System.out.println("점수 획득! +" + reward + " (현재 점수: " + player.getScore() + ")");
+                        System.out.println("점수 획득! +" + reward + " (현재 점수: " + player.getScore() + ")"); // 콘솔 출력
                     }
                     
-                    newtile.setIsEnemyhere(false);
-                    dungeon.removeEnemy(enemy);
+                    newtile.setIsEnemyhere(false); // 적이 죽었으므로 타일에서 적 제거
+                    dungeon.removeEnemy(enemy); // 던전의 적 리스트에서도 제거
                 }
-                else {
-                    // 적 생존 시 밀쳐내기 (Battle 클래스 위임)
-                    newtile.setIsEnemyhere(false); 
-                    Battle.pushEntity(enemy, dx, dy, dungeon, 1); 
-                    
-                    Tile enemyNextTile = dungeon.getTile(enemy.getX(), enemy.getY());
-                    enemyNextTile.setIsEnemyhere(true);
+                else { // 적이 아직 살아있다면 밀쳐내기 시도
+                    newtile.setIsEnemyhere(false); // 밀쳐내기 전 적이 있던 타일 상태 갱신
+
+                    Battle.pushEntity(enemy, dx, dy, dungeon, 1); // 1칸 밀쳐내기
+                    Tile enemyNextTile = dungeon.getTile(enemy.getX(), enemy.getY()); // 적의 새로운 타일
+
+                    enemyNextTile.setIsEnemyhere(true); // 적의 새로운 타일 상태 갱신
                 }
             }
-            // 행동을 했으므로 쿨다운 설정
-            player.setMoveTimer(player.getMoveSpeedFactor()); 
+
+            player.setMoveTimer(player.getMoveSpeedFactor()); // 행동을 했으므로 쿨다운 설정
         }
         
         // 3. 빈 땅 이동 (전투가 아닐 경우)
-        else if (dungeon.isWalkable(newX, newY)) {
-            // 타일 점유 상태 갱신
-            currentTile.setIsPlayerhere(false); 
+        else if (dungeon.isWalkable(newX, newY)) { // 이동 가능한 타일인지 확인
             
-            // Player의 좌표를 강제로 변경 (Entity.setPosition 활용)
-            player.setPosition(newX, newY);
-            
-            newtile.setIsPlayerhere(true); 
+            currentTile.setIsPlayerhere(false); // 타일 점유 상태 갱신
+            player.setPosition(newX, newY); // Player의 좌표를 강제로 변경 (Entity.setPosition 활용)
+            newtile.setIsPlayerhere(true); // 이동할 타일의 점유 상태 갱신 
 
-            // 이동했으므로 쿨다운 설정
-            player.setMoveTimer(player.getMoveSpeedFactor()); 
+            player.setMoveTimer(player.getMoveSpeedFactor()); // 이동했으므로 쿨다운 설정
         }
     }
 }

@@ -11,16 +11,16 @@ public class ScoreCalculator {
 
     // 적의 능력치를 기반으로 처치 점수를 계산하는 메서드
     public static int calculateKillReward(Enemy enemy) {
-        if (enemy == null || enemy.getStats() == null) {
+        if (enemy == null || enemy.getStats() == null) { // 안전장치, null 체크
             return 0;
         }
 
-        Stats stats = enemy.getStats();
-        int maxHp = stats.getMaxHp();
-        int attackPower = stats.getAttackPower();
+        Stats stats = enemy.getStats(); // 적의 능력치 가져오기
+        int maxHp = stats.getMaxHp(); // 최대 체력
+        int attackPower = stats.getAttackPower(); // 공격력
         
-        int score = (maxHp * HP_SCORE_MULTIPLIER) + (attackPower * ATK_SCORE_MULTIPLIER);
+        int score = (maxHp * HP_SCORE_MULTIPLIER) + (attackPower * ATK_SCORE_MULTIPLIER); // 점수 계산
 
-        return score;
+        return score; // 계산된 점수 반환
     }
 }

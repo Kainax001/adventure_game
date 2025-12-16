@@ -11,13 +11,13 @@ public class GameStatusRenderer {
     private final Font subFont;
 
     public GameStatusRenderer() {
-        this.titleFont = new Font("Arial", Font.BOLD, 50); // 큰 폰트
-        this.subFont = new Font("Arial", Font.PLAIN, 20);  // 작은 폰트
+        this.titleFont = new Font("Arial", Font.BOLD, 50); // 큰 폰트 정의
+        this.subFont = new Font("Arial", Font.PLAIN, 20);  // 작은 폰트 정의
     }
 
     // 1. 게임 오버 화면
     public void drawGameOver(Graphics g, int panelWidth, int panelHeight) {
-        drawDimmedBackground(g, panelWidth, panelHeight);
+        drawDimmedBackground(g, panelWidth, panelHeight, 255);
         
         g.setColor(Color.RED);
         drawCenteredString(g, "GAME OVER", panelWidth, panelHeight, -30, titleFont);
@@ -28,7 +28,7 @@ public class GameStatusRenderer {
 
     // 2. 레벨 클리어 화면
     public void drawLevelClear(Graphics g, int panelWidth, int panelHeight) {
-        drawDimmedBackground(g, panelWidth, panelHeight);
+        drawDimmedBackground(g, panelWidth, panelHeight, 150);
 
         g.setColor(Color.GREEN); // 혹은 노란색
         drawCenteredString(g, "LEVEL CLEAR!", panelWidth, panelHeight, -30, titleFont);
@@ -39,7 +39,7 @@ public class GameStatusRenderer {
 
     // 3. 종료 확인 화면
     public void drawQuitConfirmation(Graphics g, int panelWidth, int panelHeight) {
-        drawDimmedBackground(g, panelWidth, panelHeight);
+        drawDimmedBackground(g, panelWidth, panelHeight, 150);
 
         g.setColor(Color.WHITE);
         drawCenteredString(g, "Quit Game?", panelWidth, panelHeight, -30, titleFont);
@@ -47,8 +47,8 @@ public class GameStatusRenderer {
     }
 
     // [Helper] 배경을 반투명 검은색으로 덮기
-    private void drawDimmedBackground(Graphics g, int w, int h) {
-        g.setColor(new Color(0, 0, 0, 150)); // 마지막 150이 투명도 (0~255)
+    private void drawDimmedBackground(Graphics g, int w, int h, int alpha) {
+        g.setColor(new Color(0, 0, 0, alpha)); // 마지막 150이 투명도 (0~255)
         g.fillRect(0, 0, w, h);
     }
 

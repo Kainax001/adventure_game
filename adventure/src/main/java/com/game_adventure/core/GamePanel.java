@@ -15,29 +15,30 @@ import java.awt.Dimension;
 
 public class GamePanel extends JPanel {
 
-    private Dungeon dungeon;
-    private static final int TILE_SIZE = 32;
+    private Dungeon dungeon; // 현재 던전 맵
+    private static final int TILE_SIZE = 32; // 타일 크기 픽셀 단위
     
-    private boolean showQuitMessage = false;
+    private boolean showQuitMessage = false; // 종료 메시지 표시 플래그
     private boolean showWinMessage = false; // 승리 메시지 표시 플래그
 
-    private ScoreRenderer scoreRenderer;
-    private GameStatusRenderer gameStatusRenderer;
+    private ScoreRenderer scoreRenderer; // 점수 렌더러
+    private GameStatusRenderer gameStatusRenderer; // 게임 상태 렌더러
 
     public GamePanel(Dungeon dungeon) {
         this.dungeon = dungeon;
 
-        this.scoreRenderer = new ScoreRenderer();
-        this.gameStatusRenderer = new GameStatusRenderer();
+        this.scoreRenderer = new ScoreRenderer(); // 점수 렌더러 초기화
+        this.gameStatusRenderer = new GameStatusRenderer(); // 게임 상태 렌더러 초기화
 
-        int width = dungeon.getWidth() * TILE_SIZE;
-        int height = dungeon.getHeight() * TILE_SIZE;
-        setPreferredSize(new Dimension(width, height));
-        setBackground(Color.BLACK);
+        int width = dungeon.getWidth() * TILE_SIZE; // 패널 너비 계산
+        int height = dungeon.getHeight() * TILE_SIZE; // 패널 높이 계산
+        setPreferredSize(new Dimension(width, height)); // 패널 크기 설정
+        setBackground(Color.BLACK); // 배경색 검정으로 설정
     }
 
     // --- [Setter 및 Getter 메서드] ---
 
+    // 던전 맵 Setter
     public void setDungeon(Dungeon newDungeon) {
         this.dungeon = newDungeon;
 
@@ -45,25 +46,21 @@ public class GamePanel extends JPanel {
         int height = newDungeon.getHeight() * TILE_SIZE;
         setPreferredSize(new Dimension(width, height));
     }
-    
-    public void setShowQuitMessage(boolean show) {
-        this.showQuitMessage = show;
-    }
-    
-    public void setShowWinMessage(boolean show) {
-        this.showWinMessage = show;
-    }
 
+    public void setShowQuitMessage(boolean show) { this.showQuitMessage = show; } // 종료 메시지 플래그 Setter
+    public void setShowWinMessage(boolean show) { this.showWinMessage = show; } // 승리 메시지 플래그 Setter
+
+    // 플레이어가 출구 타일에 도달했는지 확인하는 메서드
     public boolean isPlayerAtExit() {
-        if (dungeon == null) return false;
+        if (dungeon == null) return false; 
         
-        Player player = dungeon.getPlayer();
-        ExitTile exitTile = dungeon.getExitTile();
+        Player player = dungeon.getPlayer(); // 플레이어 객체 가져오기
+        ExitTile exitTile = dungeon.getExitTile(); // 출구 타일 가져오기
         
-        if (player != null && exitTile != null) {
-             return player.getX() == exitTile.getX() && player.getY() == exitTile.getY();
+        if (player != null && exitTile != null) { // 플레이어와 출구 타일이 모두 존재하는지 확인
+             return player.getX() == exitTile.getX() && player.getY() == exitTile.getY(); // 위치 비교
         }
-        return false;
+        return false; // 플레이어 또는 출구 타일이 없으면 false 반환
     }
 
     // --- [그리기 (렌더링) 메서드] ---
@@ -83,13 +80,13 @@ public class GamePanel extends JPanel {
         // 3. 모든 적 그리기
         drawEnemies(g);
 
-        int panelWidth = getWidth();
-        int panelHeight = getHeight();
-        Player player = dungeon.getPlayer();
+        int panelWidth = getWidth(); // 패널 너비
+        int panelHeight = getHeight(); // 패널 높이
+        Player player = dungeon.getPlayer(); // 플레이어 객체 가져오기
 
         // 점수 표시 (항상 표시)
-        if (player != null) {
-            scoreRenderer.draw(g, player.getScore());
+        if (player != null) { // 플레이어가 존재할 때만
+            scoreRenderer.draw(g, player.getScore()); // 점수 그리기
         }
 
         // 상태 메시지 오버레이 (우선순위에 따라 하나만 표시)
@@ -109,36 +106,35 @@ public class GamePanel extends JPanel {
     
     // --- [헬퍼 그리기 메서드] ---
     
-    private void drawMapTiles(Graphics g) {
-        for (int y = 0; y < dungeon.getHeight(); y++) {
-            for (int x = 0; x < dungeon.getWidth(); x++) {
-                Tile tile = dungeon.getTile(x, y);
-                if (tile != null) {
-                    tile.draw(g, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE);
+    private void drawMapTiles(Graphics g) { // 모든 타일 그리기
+        for (int y = 0; y < dungeon.getHeight(); y++) { // 세로 순회
+            for (int x = 0; x < dungeon.getWidth(); x++) { // 가로 순회
+                Tile tile = dungeon.getTile(x, y); // (x, y) 타일 가져오기
+                if (tile != null) { // null 체크
+                    tile.draw(g, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE); // 타일 그리기
                 }
             }
         }
-        // ExitTile은 Tile 배열에 있지만, 확실한 오버레이를 위해 다시 그릴 수 있습니다.
-        ExitTile exitTile = dungeon.getExitTile();
-        if (exitTile != null) {
-            exitTile.draw(g, exitTile.getX() * TILE_SIZE, exitTile.getY() * TILE_SIZE, TILE_SIZE);
+        // ExitTile은 Tile 배열에 있지만, 확실한 오버레이를 위해 다시 그리기
+        ExitTile exitTile = dungeon.getExitTile(); // 출구 타일 가져오기
+        if (exitTile != null) { // null 체크
+            exitTile.draw(g, exitTile.getX() * TILE_SIZE, exitTile.getY() * TILE_SIZE, TILE_SIZE); // 출구 타일 그리기
         }
     }
     
-    private void drawPlayer(Graphics g) {
-        Player player = dungeon.getPlayer();
-        if (player != null) {
-            player.draw(g, TILE_SIZE);
+    private void drawPlayer(Graphics g) { // 플레이어 그리기
+        Player player = dungeon.getPlayer(); // 플레이어 객체 가져오기
+        if (player != null) { // null 체크
+            player.draw(g, TILE_SIZE); // 플레이어 그리기
         }
     }
 
-    private void drawEnemies(Graphics g) { // 메서드 이름을 복수로 변경하는 것이 좋습니다.
+    private void drawEnemies(Graphics g) {
         // Dungeon 클래스의 getEnemies()가 List<Enemy>를 반환한다고 가정
-        // [수정] getEnemy() 대신 getEnemies() 호출
-        if (dungeon.getEnemies() != null) { 
+        if (dungeon.getEnemies() != null) { // null 체크
             for (Enemy enemy : dungeon.getEnemies()) { // 리스트를 순회
-                if (enemy != null) {
-                    enemy.draw(g, TILE_SIZE);
+                if (enemy != null) { // null 체크
+                    enemy.draw(g, TILE_SIZE); // 적 그리기
                 }
             }
         }

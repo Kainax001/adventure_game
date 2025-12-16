@@ -7,8 +7,8 @@ public enum EnemyStat {
     HP(20, 100),
     ATK(5, 15);
 
-    private final int min;
-    private final int max;
+    private int min; 
+    private int max;
 
     EnemyStat(int min, int max) {
         this.min = min;
@@ -17,9 +17,10 @@ public enum EnemyStat {
 
     // 랜덤 로직
     public int getRandomValue() {
-        return (int)(Math.random() * (max - min + 1)) + min;
+        return (int)(Math.random() * (max - min + 1)) + min; // min부터 max 사이의 랜덤 값 반환
     }
 
+    // Getter
     public int getMin() { return min; }
     public int getMax() { return max; }
 
@@ -32,9 +33,10 @@ public enum EnemyStat {
         return new Stats(randomHp, randomAtk);
     }
 
+    // 현재 최대 체력에 따라 색상을 계산하는 메서드
     public static Color calculateColorByHp(int currentMaxHp) {
-        int minHp = HP.min;
-        int maxHpLimit = HP.max;
+        int minHp = HP.min; // 최소 체력
+        int maxHpLimit = HP.max; // 최대 체력
 
         // 비율 계산
         float ratio = (float)(currentMaxHp - minHp) / (maxHpLimit - minHp);
@@ -50,6 +52,6 @@ public enum EnemyStat {
         if (redValue < 50) redValue = 50;
         if (redValue > 255) redValue = 255;
 
-        return new Color(redValue, 0, 0);
+        return new Color(redValue, 0, 0); // 색상 반환
     }
 }

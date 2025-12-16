@@ -14,41 +14,40 @@ public class Player extends Entity {
     private final int MOVE_SPEED_FACTOR = 5; // 플레이어가 몇 프레임마다 한 번 움직일지 설정
     private int moveTimer = 0; // 현재 프레임 카운터를 저장
 
-    private HealthBarRenderer healthBarRenderer;
+    private HealthBarRenderer healthBarRenderer; // 체력바 렌더러
 
-    private int score = 0;
+    private int score = 0; // 플레이어 점수
 
-    public Player(int x, int y) {
-        super(x, y, createStats(200, 20));
-        this.healthBarRenderer = new HealthBarRenderer(Color.GREEN);
-        this.score = 0;
+    public Player(int x, int y) { 
+        super(x, y, createStats(200, 20)); // 체력 200, 공격력 20으로 스탯 생성
+        this.healthBarRenderer = new HealthBarRenderer(Color.GREEN); // 체력바 녹색으로 초기화
+        this.score = 0; // 점수 초기화
     }
 
     public void update() { //쿨다운을 1프레임마다 감소
-        if (dashCooldown > 0) {
+        if (dashCooldown > 0) { // 대시 쿨다운 감소
             dashCooldown--;
         }
-        if (moveTimer > 0) {
+        if (moveTimer > 0) { // 이동 타이머 감소
             moveTimer--;
         }
     }
 
-    public void move(int dx, int dy, Dungeon dungeon) {
-        PlayerMovementLogic.processMovement(this, dx, dy, dungeon, false);
+    public void move(int dx, int dy, Dungeon dungeon) { // 일반 이동 메서드
+        PlayerMovementLogic.processMovement(this, dx, dy, dungeon, false); // 대시 아님(false 전달)
     }
 
     // dash 메서드
     public void dash(int dx, int dy, Dungeon dungeon) {
         if (dashCooldown > 0) {
-            move(dx, dy, dungeon); 
+            move(dx, dy, dungeon); // 대시 쿨다운 중이면 일반 이동으로 대체
             return;
         }
-        this.dashCooldown = DASH_COOLDOWN_TIME; 
+        this.dashCooldown = DASH_COOLDOWN_TIME; // 대시 쿨다운 초기화
         
         for (int i = 0; i < DASH_DISTANCE; i++) {
-            this.moveTimer = 0; // 대시 중에는 타이머 무시
-            // 대시 이동 (true 전달)
-            PlayerMovementLogic.processMovement(this, dx, dy, dungeon, true);
+            this.moveTimer = 0; // 대시 중에는 타이머 무시, 이동 기능을 이용한 대시 구현
+            PlayerMovementLogic.processMovement(this, dx, dy, dungeon, true); // 대시 이동 (true 전달)
         }
     }
 
@@ -68,9 +67,7 @@ public class Player extends Entity {
     @Override
     public void draw(Graphics g, int tileSize) {
         g.setColor(Color.GREEN); // 플레이어 색깔
-        // 타일 좌표(x,y)를 픽셀 좌표로 변환하여 원을 그림
-        g.fillOval(x * tileSize, y * tileSize, tileSize, tileSize);
-
-        healthBarRenderer.draw(g, this.x, this.y, tileSize, this.getStats());
+        g.fillOval(x * tileSize, y * tileSize, tileSize, tileSize); // 타일 좌표(x,y)를 픽셀 좌표로 변환하여 원을 그림
+        healthBarRenderer.draw(g, this.x, this.y, tileSize, this.getStats()); // 체력바 그리기
     }
 }

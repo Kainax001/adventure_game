@@ -14,33 +14,32 @@ public class Battle {
      * @return 엔티티의 이동이 막힌 총 횟수
      */
     public static int pushEntity(Entity targetEntity, int pushDx, int pushDy, Dungeon dungeon, int attempts) {
-        int blockedCount = 0;
+        int blockedCount = 0; // 막힌 횟수 카운터
 
-        for (int attempt = 0; attempt < attempts; attempt++) {
-            int currentX = targetEntity.getX();
-            int currentY = targetEntity.getY();
+        for (int attempt = 0; attempt < attempts; attempt++) { // 시도 횟수만큼 반복
+            int currentX = targetEntity.getX(); // 현재 X 좌표
+            int currentY = targetEntity.getY(); // 현재 Y 좌표
 
-            int nextX = currentX + pushDx;
-            int nextY = currentY + pushDy;
+            int nextX = currentX + pushDx; // 다음 X 좌표
+            int nextY = currentY + pushDy; // 다음 Y 좌표
 
             // 1. 벽인지 확인 (벽이면 못 밀림)
             if (!dungeon.isWalkable(nextX, nextY)) {
-                blockedCount++; 
+                blockedCount++; // 막힌 횟수 증가
                 break; // 즉시 중단
             }
 
             // 2. 뒤에 다른 적이 있는지 확인 (겹침 방지)
             Tile nextTile = dungeon.getTile(nextX, nextY);
-            if (nextTile.isEnemyhere()) { 
-                blockedCount++;
-                break; 
+            if (nextTile.isEnemyhere()) {  // 적이 있으면 못 밀림
+                blockedCount++; // 막힌 횟수 증가
+                break; // 즉시 중단
             }
 
-            // 3. [핵심 수정] move() 대신 setPosition() 사용
             // 이동 로직(속도, 애니메이션 등)을 무시하고 좌표만 즉시 변경 -> 딜레이 없음
             targetEntity.setPosition(nextX, nextY); 
         }
         
-        return blockedCount; // 막힌 횟수 반환 (0이면 성공, >0이면 실패)
+        return blockedCount; // 막힌 횟수 반환 0이면 성공, >0이면 실패
     }
 }

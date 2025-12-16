@@ -5,9 +5,9 @@ public class Rect {
     public int x, y, w, h;
 
     public Rect(int x, int y, int w, int h) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
+        this.x = x; // 좌상단 x 좌표
+        this.y = y; // 좌상단 y 좌표
+        this.w = w; // 너비
+        this.h = h; // 높이
     }
 }

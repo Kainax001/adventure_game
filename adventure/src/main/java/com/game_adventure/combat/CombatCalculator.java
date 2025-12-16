@@ -15,24 +15,24 @@ public class CombatCalculator {
         
         // 1. 공격자가 수비자를 때림 (항상 발생)
         // 공격자의 공격력만큼 수비자 HP 감소
-        int damageToDefender = attacker.getStats().getAttackPower();
-        defender.onAttacked(damageToDefender);
+        int damageToDefender = attacker.getStats().getAttackPower(); // 공격자의 공격력
+        defender.onAttacked(damageToDefender); // 수비자에게 데미지 적용
 
         // 2. 반동 데미지 처리 로직
         // 공격자가 '플레이어'인 경우에만 상황에 따라 반동이 발생함
-        if (attacker instanceof Player) {
+        if (attacker instanceof Player) { // 공격자가 플레이어인 경우
             if (isDashAttack) {
                 // Case A: 대시 공격 -> 플레이어(Attacker)는 데미지를 입지 않음 (무적)
-                System.out.println(">> 대시 공격 성공! (플레이어 무피해)");
+                System.out.println(">> 대시 공격 성공! (플레이어 무피해)"); // 디버그 출력
             } else {
                 // Case B: 일반 이동 공격 -> 플레이어(Attacker)도 적의 공격력만큼 데미지를 입음 (쌍방 피해)
-                int recoilDamage = defender.getStats().getAttackPower();
-                attacker.onAttacked(recoilDamage);
-                System.out.println(">> 일반 공격! (플레이어도 반동 피해를 입음)");
+                int recoilDamage = defender.getStats().getAttackPower(); // 수비자의 공격력
+                attacker.onAttacked(recoilDamage); // 공격자에게 반동 데미지 적용
+                System.out.println(">> 일반 공격! (플레이어도 반동 피해를 입음)"); // 디버그 출력
             }
         }
         
-        // 3. 공격자가 '적(Enemy)'인 경우
+        // 3. 공격자가 적인 경우
         else {
             // Case C: 적이 플레이어에게 박음 -> 플레이어(Defender)만 데미지를 입음
             // 적(Attacker)은 데미지를 입지 않음 (그대로 둠)

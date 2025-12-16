@@ -5,20 +5,16 @@ import java.util.Random;
 // BSP 트리의 노드
 public class BSPNode {
     public Rect rect; // 이 노드가 담당하는 구역
-    public BSPNode leftChild;
-    public BSPNode rightChild;
+    public BSPNode leftChild; // 왼쪽 자식 노드
+    public BSPNode rightChild; // 오른쪽 자식 노드
 
-    // 이 노드(가 리프일 경우)에 생성된 실제 방
-    private Rect room; 
+    private Rect room; // 이 노드가 포함하는 방 (리프 노드일 때만 의미 있음)
 
-    // 구역을 쪼개는 최소 크기
-    private static final int MIN_LEAF_SIZE = 6;
-    // 방의 최소 크기
-    private static final int ROOM_MIN_SIZE = 4; 
-    // 구역과 방 사이의 최소 여백
-    private static final int ROOM_MARGIN = 1; 
+    private static final int MIN_LEAF_SIZE = 6; // 구역의 최소 크기
+    private static final int ROOM_MIN_SIZE = 4; // 방의 최소 크기
+    private static final int ROOM_MARGIN = 1; // 방과 구역 경계 사이의 여유 공간
 
-    private static Random rand = new Random();
+    private static Random rand = new Random(); // 난수 생성기
 
     public BSPNode(Rect rect) {
         this.rect = rect;
@@ -26,67 +22,63 @@ public class BSPNode {
 
     /**
      * [1단계: 구역 분할]
-     * 이 노드의 구역(rect)을 재귀적으로 쪼갭니다.
+     * 이 노드의 구역(rect)을 재귀적으로 쪼갬
      */
     public boolean split() {
-        if (leftChild != null || rightChild != null) {
-            return false; // 이미 쪼개졌음
+        if (leftChild != null || rightChild != null) { // 이미 쪼개졌으면
+            return false; // 더 이상 쪼개지 않음
         }
 
-        // 분할 방향 결정 (true: 가로 분할, false: 세로 분할)
-        boolean splitH = rand.nextBoolean();
-        if (rect.w > rect.h && (double)rect.w / rect.h >= 1.25) splitH = false;
-        else if (rect.h > rect.w && (double)rect.h / rect.w >= 1.25) splitH = true;
+        boolean splitH = rand.nextBoolean(); // 가로/세로 분할 여부 랜덤 결정
 
-        int max = (splitH ? rect.h : rect.w) - MIN_LEAF_SIZE;
-        if (max < MIN_LEAF_SIZE) {
-            return false; // 쪼개기에 너무 작음 (리프 노드가 됨)
+        if (rect.w > rect.h && (double)rect.w / rect.h >= 1.25) splitH = false; // 너비가 훨씬 크면 세로 분할, 상수로 비율 조정 가능
+        else if (rect.h > rect.w && (double)rect.h / rect.w >= 1.25) splitH = true; // 높이가 훨씬 크면 가로 분할, 상수로 비율 조정 가능
+
+        int max = (splitH ? rect.h : rect.w) - MIN_LEAF_SIZE; // 쪼갤 수 있는 최대 위치 계산
+        if (max < MIN_LEAF_SIZE) { // 너무 작아서 쪼갤 수 없으면
+            return false; // 쪼개지 않음
         }
 
-        // (수정된 부분) nextInt(0) 오류를 막기 위해 + 1 추가
-        int splitPos = rand.nextInt(max - MIN_LEAF_SIZE + 1) + MIN_LEAF_SIZE;
+        int splitPos = rand.nextInt(max - MIN_LEAF_SIZE + 1) + MIN_LEAF_SIZE; // 쪼갤 위치 랜덤 결정, 최소 크기 보장
 
         if (splitH) { // 가로 분할 (위, 아래)
-            leftChild = new BSPNode(new Rect(rect.x, rect.y, rect.w, splitPos));
-            rightChild = new BSPNode(new Rect(rect.x, rect.y + splitPos, rect.w, rect.h - splitPos));
+            leftChild = new BSPNode(new Rect(rect.x, rect.y, rect.w, splitPos)); // 위쪽 구역
+            rightChild = new BSPNode(new Rect(rect.x, rect.y + splitPos, rect.w, rect.h - splitPos)); // 아래쪽 구역
         } else { // 세로 분할 (왼쪽, 오른쪽)
-            leftChild = new BSPNode(new Rect(rect.x, rect.y, splitPos, rect.h));
-            rightChild = new BSPNode(new Rect(rect.x + splitPos, rect.y, rect.w - splitPos, rect.h));
+            leftChild = new BSPNode(new Rect(rect.x, rect.y, splitPos, rect.h)); // 왼쪽 구역
+            rightChild = new BSPNode(new Rect(rect.x + splitPos, rect.y, rect.w - splitPos, rect.h)); // 오른쪽 구역
         }
 
         // 자식들도 재귀적으로 쪼갬
         leftChild.split();
         rightChild.split();
-        return true;
+        return true; // 쪼개기 성공
     }
 
     /**
      * [2단계: 방 생성]
-     * 쪼개진 리프 노드에 실제 방을 만듭니다.
+     * 쪼개진 리프 노드에 실제 방을 만듬
      */
     public void createRoom(DungeonGenerator generator) {
-        if (leftChild != null || rightChild != null) {
-            // 리프 노드가 아니면 자식들에게 위임
+        if (leftChild != null || rightChild != null) { // 리프 노드가 아니면 자식들에게 위임
 
-            // (수정된 부분) 재귀 호출 시 's'가 빠진 createRoom 호출
-            if (leftChild != null) leftChild.createRoom(generator);
-            if (rightChild != null) rightChild.createRoom(generator);
-        } else {
-            // 리프 노드이면, 여기에 방을 생성
+            if (leftChild != null) leftChild.createRoom(generator); // 왼쪽 자식에게 방 생성 요청
+            if (rightChild != null) rightChild.createRoom(generator); // 오른쪽 자식에게 방 생성 요청
+        } 
+        else { // 리프 노드이면, 여기에 방을 생성
             // (방 크기 랜덤 설정 시 0 또는 음수가 나오지 않도록 + 1)
-            int w = rand.nextInt(rect.w - ROOM_MARGIN * 2 - ROOM_MIN_SIZE + 1) + ROOM_MIN_SIZE;
-            int h = rand.nextInt(rect.h - ROOM_MARGIN * 2 - ROOM_MIN_SIZE + 1) + ROOM_MIN_SIZE;
-            int x = rand.nextInt(rect.w - w - ROOM_MARGIN * 2 + 1) + rect.x + ROOM_MARGIN;
-            int y = rand.nextInt(rect.h - h - ROOM_MARGIN * 2 + 1) + rect.y + ROOM_MARGIN;
-
-            this.room = new Rect(x, y, w, h);
-            generator.createRoom(this.room); 
+            int w = rand.nextInt(rect.w - ROOM_MARGIN * 2 - ROOM_MIN_SIZE + 1) + ROOM_MIN_SIZE; // 방 너비
+            int h = rand.nextInt(rect.h - ROOM_MARGIN * 2 - ROOM_MIN_SIZE + 1) + ROOM_MIN_SIZE; // 방 높이
+            int x = rand.nextInt(rect.w - w - ROOM_MARGIN * 2 + 1) + rect.x + ROOM_MARGIN; // 방 좌상단 x 좌표
+            int y = rand.nextInt(rect.h - h - ROOM_MARGIN * 2 + 1) + rect.y + ROOM_MARGIN; // 방 좌상단 y 좌표
+            this.room = new Rect(x, y, w, h); // 방 생성
+            generator.createRoom(this.room); // generator 클래스의 createRoom 메서드 호출(현재 클래스의 메서드 아님, 이름만 동일), 타일맵에 방을 파내는 메서드
         }
     }
 
     /**
      * [3단계: 복도 연결]
-     * 자신의 두 자식(leftChild, rightChild)을 찾아 복도로 연결합니다.
+     * 자신의 두 자식(leftChild, rightChild)을 찾아 복도로 연결
      */
     public void createCorridors(DungeonGenerator generator) {
         // 리프 노드는 복도를 만들 필요 없음
@@ -110,7 +102,7 @@ public class BSPNode {
 
     /**
      * [헬퍼 메서드]
-     * 자신 또는 자신의 자식 노드(재귀)가 가진 '방(room)'을 찾아 반환합니다.
+     * 자신 또는 자신의 자식 노드가 가진 방을 찾아 반환
      */
     public Rect getRoom() {
         if (this.room != null) {
@@ -121,23 +113,25 @@ public class BSPNode {
             Rect leftRoom = null;
             Rect rightRoom = null;
 
-            if (leftChild != null) {
-                leftRoom = leftChild.getRoom();
+            if (leftChild != null) { // 왼쪽 자식이 있으면
+                leftRoom = leftChild.getRoom(); // 왼쪽 자식에게 방을 찾아오라고 요청
             }
-            if (rightChild != null) {
-                rightRoom = rightChild.getRoom();
+            if (rightChild != null) { // 오른쪽 자식이 있으면
+                rightRoom = rightChild.getRoom(); // 오른쪽 자식에게 방을 찾아오라고 요청
             }
 
             // 3. 자식들이 찾아온 방을 조합해서 반환
-            if (leftRoom == null && rightRoom == null) {
-                return null; // 자식들에게 방이 없음
-            } else if (rightRoom == null) {
+            if (leftRoom == null && rightRoom == null) { // 둘 다 방이 없으면
+                return null; // null 반환
+            } 
+            else if (rightRoom == null) {
                 return leftRoom; // 왼쪽 방만 있음
-            } else if (leftRoom == null) {
+            } 
+            else if (leftRoom == null) {
                 return rightRoom; // 오른쪽 방만 있음
-            } else {
-                // 둘 다 방이 있으면, 50% 확률로 둘 중 하나 반환
-                return (rand.nextBoolean()) ? leftRoom : rightRoom;
+            } 
+            else {
+                return (rand.nextBoolean()) ? leftRoom : rightRoom; // 둘 다 방이 있으면, 50% 확률로 둘 중 하나 반환
             }
         }
     }

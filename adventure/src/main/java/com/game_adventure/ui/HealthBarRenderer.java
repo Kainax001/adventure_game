@@ -1,4 +1,4 @@
-package com.game_adventure.ui; // ui 패키지를 새로 파서 넣는 것을 추천합니다.
+package com.game_adventure.ui;
 
 import com.game_adventure.entity.Stats;
 import java.awt.Color;
@@ -8,7 +8,7 @@ public class HealthBarRenderer {
     private final Color hpColor;
     private final Color bgColor;
     
-    // 생성자에서 색상을 설정받음
+    // 생성자에서 색상을 설정받음, 스테이터스에 따른 색상 설정 가능
     public HealthBarRenderer(Color hpColor) {
         this.hpColor = hpColor;
         this.bgColor = new Color(50, 50, 50); // 기본 배경색 짙은 회색

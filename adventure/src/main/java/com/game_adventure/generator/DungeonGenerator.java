@@ -21,71 +21,56 @@ public class DungeonGenerator {
         roomList.clear(); // 맵 재생성 시 목록 초기화
 
         // 1. 맵을 모두 벽으로 초기화
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                tiles[y][x] = new WallTile(x, y);
+        for (int y = 0; y < height; y++) { // 세로
+            for (int x = 0; x < width; x++) { // 가로
+                tiles[y][x] = new WallTile(x, y); // 벽 타일로 초기화
             }
         }
 
         // 2. BSP 로직 실행
-        BSPNode root = new BSPNode(new Rect(1, 1, width - 2, height - 2)); 
-        root.split(); 
-        root.createRoom(this); 
-        root.createCorridors(this);
+        BSPNode root = new BSPNode(new Rect(1, 1, width - 2, height - 2)); // 가장 바깥쪽은 벽으로 남기기 위해 1칸 여유
+        root.split(); // 분할 수행
+        root.createRoom(this); // 방 생성
+        root.createCorridors(this); // 복도 생성
 
         // 3. 첫 번째 방 좌표 계산 (Player 생성하지 않음)
         if (roomList.isEmpty()) {
             createRoom(new Rect(width/2 - 2, height/2 - 2, 5, 5));
         }
 
-        Rect firstRoom = roomList.get(0);
-        int startX = firstRoom.x + firstRoom.w / 2;
-        int startY = firstRoom.y + firstRoom.h / 2;
+        Rect firstRoom = roomList.get(0); // 첫 번째 방
+        int startX = firstRoom.x + firstRoom.w / 2; // 방 중앙 x 좌표
+        int startY = firstRoom.y + firstRoom.h / 2; // 방 중앙 y 좌표
 
-        // 4. 출구 타일 배치 (기존 로직 유지)
+        // 4. 출구 타일 배치
         if (!roomList.isEmpty()) {
-            Rect lastRoom = roomList.get(roomList.size() - 1);
-            int exitX = lastRoom.x + lastRoom.w / 2;
-            int exitY = lastRoom.y + lastRoom.h / 2;
+            Rect lastRoom = roomList.get(roomList.size() - 1); // 마지막 방
+            int exitX = lastRoom.x + lastRoom.w / 2; // 방 중앙 x 좌표
+            int exitY = lastRoom.y + lastRoom.h / 2; // 방 중앙 y 좌표
             
-            if (exitY > 0 && exitY < tiles.length - 1 && exitX > 0 && exitX < tiles[0].length - 1) {
-                tiles[exitY][exitX] = new com.game_adventure.map.ExitTile(exitX, exitY);
-            }
+            tiles[exitY][exitX] = new com.game_adventure.map.ExitTile(exitX, exitY); // 출구 타일 배치
         }
 
-        // 4-1. 적 배치 (임의로 각 방의 중앙에 배치)
-        if(!roomList.isEmpty()) {
-            for (Rect room : roomList) {
-                int enemyX = room.x + room.w / 2;
-                int enemyY = room.y + room.h / 2;
-
-                if ((enemyX != startX || enemyY != startY) && tiles[enemyY][enemyX] instanceof FloorTile) {
-                }
-            }
-        }
-
-        // 5. Dungeon 객체 반환
-        // 임시 Player 객체를 생성하여 Dungeon에 전달하고, 시작 좌표를 함께 저장합니다.
-        Player tempPlayer = new Player(startX, startY);
+        // 5. Player 생성 및 던전에 연결
+        // 임시 Player 객체를 생성하여 Dungeon에 전달하고, 시작 좌표를 함께 저장
+        Player tempPlayer = new Player(startX, startY); // 임시 플레이어 생성
         tiles[startY][startX].setIsPlayerhere(true);// 플레이어 시작 위치는 바닥 타일로 설정
         Dungeon dungeon = new Dungeon(tiles, tempPlayer, startX, startY); // Dungeon 객체 생성
 
-        // **[핵심 추가] 6. 적 생성 및 배치 (50% 확률)**
+        // 6. 적 생성 및 배치 (50% 확률)
         Random rand = new Random();
         if (!roomList.isEmpty()) {
-            for (Rect room : roomList) {
-                // 첫 방은 플레이어 시작 지점이므로 적을 배치하지 않습니다.
-                if (room == firstRoom) continue; 
+            for (Rect room : roomList) { // 각 방에 대해 리스트 순회
+                if (room == firstRoom) continue; // 첫 방은 플레이어 시작 지점이므로 적을 배치하지 않음
                 
                 // 50% 확률로 적 생성
                 if (rand.nextBoolean()) { // true 또는 false (50% 확률)
-                    int enemyX = room.x + room.w / 2;
-                    int enemyY = room.y + room.h / 2;
+                    int enemyX = room.x + room.w / 2; // 방 중앙 x 좌표
+                    int enemyY = room.y + room.h / 2; // 방 중앙 y 좌표
 
-                    // 해당 위치가 바닥 타일이고 (중복 체크)
-                    // (출구 타일이 FloorTile을 덮어쓰므로 출구에도 배치될 수 있습니다. 필요하다면 ExiTile 체크 추가)
-                    if (tiles[enemyY][enemyX] instanceof FloorTile) {
-                        Enemy enemy = new Enemy(enemyX, enemyY);
+                    if (tiles[enemyY][enemyX] instanceof FloorTile) { // 바닥 타일인지 확인
+                        Enemy enemy = new Enemy(enemyX, enemyY); // 적 생성
+                        tiles[enemyY][enemyX].setIsEnemyhere(true); // 적이 있는 타일로 설정
                         dungeon.addEnemy(enemy); // 생성된 적을 던전에 추가
                     }
                 }
@@ -96,8 +81,7 @@ public class DungeonGenerator {
     }
 
     /**
-     * BSPNode가 호출할 공용 메서드 (방을 타일맵에 "파냄")
-     * (private이 아니어야 BSPNode가 접근 가능)
+     * BSPNode가 호출할 공용 메서드 방을 타일맵에 "파냄"
      */
     void createRoom(Rect room) {
         for (int y = room.y; y < room.y + room.h; y++) {
@@ -112,15 +96,14 @@ public class DungeonGenerator {
     }
 
     /**
-     * BSPNode가 호출할 공용 메서드 (L자 복도로 두 방을 연결)
-     * (private이 아니어야 BSPNode가 접근 가능)
+     * BSPNode가 호출할 공용 메서드, L자 복도로 두 방을 연결
      */
     void connectRooms(Rect room1, Rect room2) {
         // 각 방의 중심 좌표
-        int x1 = room1.x + room1.w / 2;
-        int y1 = room1.y + room1.h / 2;
-        int x2 = room2.x + room2.w / 2;
-        int y2 = room2.y + room2.h / 2;
+        int x1 = room1.x + room1.w / 2; // 방1 중심 x 좌표
+        int y1 = room1.y + room1.h / 2; // 방1 중심 y 좌표
+        int x2 = room2.x + room2.w / 2; // 방2 중심 x 좌표
+        int y2 = room2.y + room2.h / 2; // 방2 중심 y 좌표
 
         // 50% 확률로 가로 먼저 뚫거나, 세로 먼저 뚫거나
         if (new Random().nextBoolean()) {

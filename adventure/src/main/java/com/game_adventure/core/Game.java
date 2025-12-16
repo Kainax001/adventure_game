@@ -1,13 +1,13 @@
 package com.game_adventure.core;
 
-import com.game_adventure.map.Dungeon;
+import javax.swing.JFrame;
+
 import com.game_adventure.entity.Enemy;
 import com.game_adventure.entity.Player;
 import com.game_adventure.generator.DungeonGenerator;
+import com.game_adventure.map.Dungeon;
 
-import javax.swing.JFrame;
-
-public class Game implements Runnable {
+public class Game {
 
     private Dungeon dungeon;
     private Player player;
@@ -20,8 +20,10 @@ public class Game implements Runnable {
     private final int MAP_WIDTH = 50;
     private final int MAP_HEIGHT = 30;
 
-    private Thread gameThread;
+    private Thread logicThread;
+    private Thread renderThread;
     private final int FPS = 30;
+    private final int TPS = 30;
 
     public boolean isAwaitingQuitConfirmation = false;
     private boolean isAwaitingLevelTransition = false; 
@@ -57,9 +59,6 @@ public class Game implements Runnable {
         frame.setLocationRelativeTo(null); 
         frame.setVisible(true);
 
-        InputHandler inputHandler = new InputHandler(this, this.player, this.dungeon, this.gamePanel);
-        frame.addKeyListener(inputHandler);
-
         this.inputHandler = new InputHandler(this, this.player, this.dungeon, this.gamePanel);
         frame.addKeyListener(this.inputHandler);
 
@@ -74,7 +73,7 @@ public class Game implements Runnable {
             else if (action == ActionKey.NO) { 
                 setIsAwaitingQuitConfirmation(false);
                 gamePanel.setShowQuitMessage(false);
-                gamePanel.repaint(); 
+                gamePanel.repaint();
             }
             return;
         }
@@ -143,7 +142,7 @@ public class Game implements Runnable {
     /**
      * 새 레벨을 생성하고 게임 상태를 초기화하는 메서드
      */
-    private void generateNewLevel() {
+    private synchronized void generateNewLevel() {
         System.out.println("Generating new level...");
         
         // 새 맵을 그리기 전에 level 전환 메시지 숨기기
@@ -176,8 +175,13 @@ public class Game implements Runnable {
     }
 
     public void startGame() {
-        gameThread = new Thread(this);
-        gameThread.start();
+        // 1. 로직 스레드 생성 및 시작
+        logicThread = new Thread(this::runLogic, "Logic-Thread");
+        logicThread.start();
+
+        // 2. 렌더링 스레드 생성 및 시작
+        renderThread = new Thread(this::runRender, "Render-Thread");
+        renderThread.start();
     }
 
     private void updateLogic() {
@@ -196,31 +200,40 @@ public class Game implements Runnable {
         player.update(); // 플레이어 업데이트
     }
     
-    @Override
-    public void run() {
-        double targetFrameTime = 1000.0 / FPS; 
+    private void runLogic() {
+        double timePerTick = 1000.0 / TPS;
 
-        while (gameThread != null) {
+        while (logicThread != null) {
             long startTime = System.currentTimeMillis();
 
-            // 게임 로직 업데이트
-            // **[핵심 추가]** 게임 로직 업데이트 호출
-            // 레벨 전환/종료 대기 중이 아닐 때만 로직을 실행합니다.
+            // 로직 업데이트 수행
             if (!isAwaitingQuitConfirmation && !isAwaitingLevelTransition) {
                  updateLogic(); 
             }
 
-            gamePanel.repaint();
-
             long timeTaken = System.currentTimeMillis() - startTime;
-            long sleepTime = (long) (targetFrameTime - timeTaken);
+            long sleepTime = (long) (timePerTick - timeTaken);
 
             if (sleepTime > 0) {
-                try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                try { Thread.sleep(sleepTime); } catch (InterruptedException e) {}
+            }
+        }
+    }
+
+    private void runRender() {
+        double timePerFrame = 1000.0 / FPS;
+
+        while (renderThread != null) {
+            long startTime = System.currentTimeMillis();
+
+            // 화면 갱신 요청
+            gamePanel.repaint(); 
+
+            long timeTaken = System.currentTimeMillis() - startTime;
+            long sleepTime = (long) (timePerFrame - timeTaken);
+
+            if (sleepTime > 0) {
+                try { Thread.sleep(sleepTime); } catch (InterruptedException e) {}
             }
         }
     }
