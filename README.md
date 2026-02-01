@@ -1,4 +1,4 @@
-# [Project Name: Java Native Adventure]
+# [Project Name: Game_Adventure]
 
 > **No Engine, Just Code.**
 > 상용 게임 엔진(Unity, Unreal) 없이 Java 표준 라이브러리만으로 구축한 2D 어드벤처 게임
